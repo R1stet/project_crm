@@ -3,11 +3,61 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Primary colors - high contrast blue */
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary colors - high contrast gray */
+  --secondary: #374151;
+  --secondary-foreground: #ffffff;
+  
+  /* Accent colors for hover states */
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
+  
+  /* Destructive colors - high contrast red */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  
+  /* Border and input colors */
+  --border: #d1d5db;
+  --input: #f9fafb;
+  --ring: #2563eb;
+  
+  /* Muted colors */
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  
+  /* Card colors */
+  --card: #ffffff;
+  --card-foreground: #111827;
+  
+  /* Popover colors */
+  --popover: #ffffff;
+  --popover-foreground: #111827;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -16,6 +66,39 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    
+    /* Primary colors - high contrast blue for dark mode */
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    
+    /* Secondary colors - high contrast gray for dark mode */
+    --secondary: #4b5563;
+    --secondary-foreground: #ffffff;
+    
+    /* Accent colors for hover states in dark mode */
+    --accent: #1f2937;
+    --accent-foreground: #f9fafb;
+    
+    /* Destructive colors - high contrast red for dark mode */
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    
+    /* Border and input colors for dark mode */
+    --border: #374151;
+    --input: #1f2937;
+    --ring: #3b82f6;
+    
+    /* Muted colors for dark mode */
+    --muted: #1f2937;
+    --muted-foreground: #9ca3af;
+    
+    /* Card colors for dark mode */
+    --card: #111827;
+    --card-foreground: #f9fafb;
+    
+    /* Popover colors for dark mode */
+    --popover: #111827;
+    --popover-foreground: #f9fafb;
   }
 }
 

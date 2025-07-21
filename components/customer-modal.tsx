@@ -1,12 +1,7 @@
-"use client"
+// /components/customer-modal.tsx
+'use client';
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,151 +9,211 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { Customer } from "@/types/customer"
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { Customer, DressType, Status, InvoiceStatus } from '@/types/customer';
+import { uploadInvoice } from '@/lib/storage';
+import { Upload, Loader2 } from 'lucide-react';
 
 interface CustomerModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (customer: Omit<Customer, "id" | "createdBy" | "createdAt" | "updatedAt" | "dateAdded">) => Promise<void>
-  customer?: Customer | null
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (
+    customer: Omit<Customer, 'id' | 'createdBy' | 'createdAt' | 'updatedAt' | 'dateAdded'>
+  ) => Promise<void>;
+  customer?: Customer | null;
 }
+
+const dressOptions: DressType[] = ['A-line', 'Ball gown', 'Mermaid', 'Sheath', 'Tea-length'];
+const statusOptions: Status[] = [
+  'Awaiting',
+  'Awaiting fitting',
+  'In production',
+  'Ready for pickup',
+  'Finished',
+];
+const invoiceOptions: InvoiceStatus[] = ['To be sent', 'Sent', 'Partially paid', 'Paid'];
 
 export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerModalProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phoneNumber: "",
-    salesperson: "",
-    status: "Awaiting",
-    dress: "",
-    maker: "",
+    name: '',
+    email: '',
+    phoneNumber: '',
+    salesperson: '',
+    status: 'Awaiting' as Status,
+    dress: null as DressType,
+    maker: '',
     size: {
-      bryst: "",
-      talje: "",
-      hofte: "",
-      arms: "",
-      height: "",
+      bryst: '',
+      talje: '',
+      hofte: '',
+      arms: '',
+      height: '',
     },
-    invoiceStatus: "To be sent",
-    invoicePdf: "",
-    confirmationPdf: "",
-    notes: "",
-    weddingDate: "",
-  })
+    invoiceStatus: 'To be sent' as InvoiceStatus,
+    invoiceFileUrl: '',
+    confirmationFileUrl: '',
+    notes: '',
+    weddingDate: '',
+  });
 
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /* ---------- sync incoming customer ---------- */
   useEffect(() => {
     if (customer) {
       setFormData({
         name: customer.name,
         email: customer.email,
-        phoneNumber: customer.phoneNumber || "",
-        salesperson: customer.salesperson || "",
+        phoneNumber: customer.phoneNumber ?? '',
+        salesperson: customer.salesperson ?? '',
         status: customer.status,
-        dress: customer.dress || "",
-        maker: customer.maker || "",
+        dress: customer.dress,
+        maker: customer.maker ?? '',
         size: {
-          bryst: customer.size.bryst || "",
-          talje: customer.size.talje || "",
-          hofte: customer.size.hofte || "",
-          arms: customer.size.arms || "",
-          height: customer.size.height || "",
+          bryst: customer.size.bryst?.toString() ?? '',
+          talje: customer.size.talje?.toString() ?? '',
+          hofte: customer.size.hofte?.toString() ?? '',
+          arms: customer.size.arms?.toString() ?? '',
+          height: customer.size.height?.toString() ?? '',
         },
         invoiceStatus: customer.invoiceStatus,
-        invoicePdf: customer.invoicePdf || "",
-        confirmationPdf: customer.confirmationPdf || "",
-        notes: customer.notes || "",
-        weddingDate: customer.weddingDate || "",
-      })
+        invoiceFileUrl: customer.invoiceFileUrl ?? '',
+        confirmationFileUrl: customer.confirmationFileUrl ?? '',
+        notes: customer.notes ?? '',
+        weddingDate: customer.weddingDate ?? '',
+      });
     } else {
+      /* reset to blank */
       setFormData({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        salesperson: "",
-        status: "Awaiting",
-        dress: "",
-        maker: "",
+        name: '',
+        email: '',
+        phoneNumber: '',
+        salesperson: '',
+        status: 'Awaiting',
+        dress: null,
+        maker: '',
         size: {
-          bryst: "",
-          talje: "",
-          hofte: "",
-          arms: "",
-          height: "",
+          bryst: '',
+          talje: '',
+          hofte: '',
+          arms: '',
+          height: '',
         },
-        invoiceStatus: "To be sent",
-        invoicePdf: "",
-        confirmationPdf: "",
-        notes: "",
-        weddingDate: "",
-      })
+        invoiceStatus: 'To be sent',
+        invoiceFileUrl: '',
+        confirmationFileUrl: '',
+        notes: '',
+        weddingDate: '',
+      });
     }
-  }, [customer, isOpen])
+  }, [customer, isOpen]);
 
+  /* ---------- helpers ---------- */
   const handleChange = (field: string, value: string) => {
-    if (field.startsWith("size.")) {
-      const sizeField = field.split(".")[1]
+    if (field.startsWith('size.')) {
+      const sizeField = field.split('.')[1];
       setFormData((prev) => ({
         ...prev,
-        size: {
-          ...prev.size,
-          [sizeField]: value,
-        },
-      }))
+        size: { ...prev.size, [sizeField]: value },
+      }));
     } else {
-      setFormData((prev) => ({ ...prev, [field]: value }))
+      setFormData((prev) => ({ ...prev, [field]: value }));
     }
-  }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Please select a PDF file');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const url = await uploadInvoice(file, customer?.id);
+      handleChange('invoiceFileUrl', url);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
+    e.preventDefault();
+    setSaving(true);
 
     try {
+      /* convert strings → numbers where needed */
+      const toNum = (v: string) => (v === '' ? null : parseFloat(v));
+
       await onSave({
         ...formData,
         phoneNumber: formData.phoneNumber || null,
         salesperson: formData.salesperson || null,
-        dress: formData.dress || null,
+        dress: formData.dress,
         maker: formData.maker || null,
         size: {
-          bryst: formData.size.bryst || null,
-          talje: formData.size.talje || null,
-          hofte: formData.size.hofte || null,
-          arms: formData.size.arms || null,
-          height: formData.size.height || null,
+          bryst: toNum(formData.size.bryst),
+          talje: toNum(formData.size.talje),
+          hofte: toNum(formData.size.hofte),
+          arms: toNum(formData.size.arms),
+          height: toNum(formData.size.height),
         },
-        invoicePdf: formData.invoicePdf || null,
-        confirmationPdf: formData.confirmationPdf || null,
+        invoiceFileUrl: formData.invoiceFileUrl || null,
+        confirmationFileUrl: formData.confirmationFileUrl || null,
         notes: formData.notes || null,
         weddingDate: formData.weddingDate || null,
-      })
+      });
     } catch (error) {
-      console.error("Error saving customer:", error)
+      console.error('Error saving customer:', error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
+  /* ---------- render ---------- */
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{customer ? "Edit Customer" : "Add New Customer"}</DialogTitle>
+          <DialogTitle>{customer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
           <DialogDescription>
-            {customer ? "Update customer information below." : "Enter customer details below."}
+            {customer ? 'Update customer information below.' : 'Enter customer details below.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* name */}
           <div className="space-y-2">
             <Label htmlFor="name">Name *</Label>
-            <Input id="name" value={formData.name} onChange={(e) => handleChange("name", e.target.value)} required />
+            <Input id="name" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
           </div>
 
+          {/* email + phone */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email *</Label>
@@ -166,7 +221,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
+                onChange={(e) => handleChange('email', e.target.value)}
                 required
               />
             </div>
@@ -175,119 +230,97 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               <Input
                 id="phoneNumber"
                 value={formData.phoneNumber}
-                onChange={(e) => handleChange("phoneNumber", e.target.value)}
+                onChange={(e) => handleChange('phoneNumber', e.target.value)}
               />
             </div>
           </div>
 
+          {/* salesperson + status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="salesperson">Salesperson</Label>
               <Input
                 id="salesperson"
                 value={formData.salesperson}
-                onChange={(e) => handleChange("salesperson", e.target.value)}
+                onChange={(e) => handleChange('salesperson', e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
+              <Select value={formData.status} onValueChange={(v) => handleChange('status', v)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Awaiting">Awaiting</SelectItem>
-                  <SelectItem value="Awaiting fitting">Awaiting fitting</SelectItem>
-                  <SelectItem value="In production">In production</SelectItem>
-                  <SelectItem value="Ready for pickup">Ready for pickup</SelectItem>
-                  <SelectItem value="Finished">Finished</SelectItem>
+                  {statusOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {opt}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
+          {/* dress + maker */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="dress">Dress</Label>
-              <Input id="dress" value={formData.dress} onChange={(e) => handleChange("dress", e.target.value)} />
+              <Select value={formData.dress ?? ''} onValueChange={(v) => handleChange('dress', v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dressOptions.map((opt) => (
+                    <SelectItem key={opt ?? 'none'} value={opt ?? ''}>
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="maker">Maker</Label>
-              <Input id="maker" value={formData.maker} onChange={(e) => handleChange("maker", e.target.value)} />
+              <Input id="maker" value={formData.maker} onChange={(e) => handleChange('maker', e.target.value)} />
             </div>
           </div>
 
+          {/* sizes */}
           <div className="space-y-2">
             <Label>Size Measurements (cm)</Label>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              <div>
-                <Label htmlFor="bryst" className="text-xs">
-                  Bryst
-                </Label>
-                <Input
-                  id="bryst"
-                  placeholder="cm"
-                  value={formData.size.bryst}
-                  onChange={(e) => handleChange("size.bryst", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="talje" className="text-xs">
-                  Talje
-                </Label>
-                <Input
-                  id="talje"
-                  placeholder="cm"
-                  value={formData.size.talje}
-                  onChange={(e) => handleChange("size.talje", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="hofte" className="text-xs">
-                  Hofte
-                </Label>
-                <Input
-                  id="hofte"
-                  placeholder="cm"
-                  value={formData.size.hofte}
-                  onChange={(e) => handleChange("size.hofte", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="arms" className="text-xs">
-                  Arms
-                </Label>
-                <Input
-                  id="arms"
-                  placeholder="cm"
-                  value={formData.size.arms}
-                  onChange={(e) => handleChange("size.arms", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="height" className="text-xs">
-                  Height
-                </Label>
-                <Input
-                  id="height"
-                  placeholder="cm"
-                  value={formData.size.height}
-                  onChange={(e) => handleChange("size.height", e.target.value)}
-                />
-              </div>
+              {(['bryst', 'talje', 'hofte', 'arms', 'height'] as const).map((field) => (
+                <div key={field}>
+                  <Label htmlFor={field} className="text-xs capitalize">
+                    {field}
+                  </Label>
+                  <Input
+                    id={field}
+                    type="number"
+                    step="0.01"
+                    placeholder="cm"
+                    value={formData.size[field]}
+                    onChange={(e) => handleChange(`size.${field}`, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
+          {/* invoice status + wedding date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="invoiceStatus">Invoice Status</Label>
-              <Select value={formData.invoiceStatus} onValueChange={(value) => handleChange("invoiceStatus", value)}>
+              <Select value={formData.invoiceStatus} onValueChange={(v) => handleChange('invoiceStatus', v)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select invoice status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="To be sent">To be sent</SelectItem>
-                  <SelectItem value="Paid">Paid</SelectItem>
+                  {invoiceOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {opt}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -297,52 +330,85 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                 id="weddingDate"
                 type="date"
                 value={formData.weddingDate}
-                onChange={(e) => handleChange("weddingDate", e.target.value)}
+                onChange={(e) => handleChange('weddingDate', e.target.value)}
               />
             </div>
           </div>
 
+          {/* file URLs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="invoicePdf">Invoice PDF URL</Label>
-              <Input
-                id="invoicePdf"
-                placeholder="https://example.com/invoice.pdf"
-                value={formData.invoicePdf}
-                onChange={(e) => handleChange("invoicePdf", e.target.value)}
-              />
+              <Label htmlFor="invoiceFileUrl">Invoice File URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="invoiceFileUrl"
+                  placeholder="invoices/{id}.pdf or upload file"
+                  value={formData.invoiceFileUrl}
+                  onChange={(e) => handleChange('invoiceFileUrl', e.target.value)}
+                  disabled={uploading}
+                />
+                <div className="relative">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={uploading || saving}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading || saving}
+                    className="h-9"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              {uploading && (
+                <p className="text-xs text-blue-600">Uploading PDF...</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmationPdf">Confirmation PDF URL</Label>
+              <Label htmlFor="confirmationFileUrl">Confirmation File URL</Label>
               <Input
-                id="confirmationPdf"
-                placeholder="https://example.com/confirmation.pdf"
-                value={formData.confirmationPdf}
-                onChange={(e) => handleChange("confirmationPdf", e.target.value)}
+                id="confirmationFileUrl"
+                placeholder="confirmations/{id}.pdf"
+                value={formData.confirmationFileUrl}
+                onChange={(e) => handleChange('confirmationFileUrl', e.target.value)}
               />
             </div>
           </div>
 
+          {/* notes */}
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              onChange={(e) => handleChange('notes', e.target.value)}
               rows={3}
             />
           </div>
 
+          {/* footer */}
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
               Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? "Saving..." : customer ? "Update Customer" : "Add Customer"}
+              {saving ? 'Saving...' : customer ? 'Update Customer' : 'Add Customer'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

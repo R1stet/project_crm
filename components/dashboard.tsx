@@ -115,7 +115,10 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         stack: err instanceof Error ? err.stack : undefined,
         customerData: customerData,
       })
-      alert(`Failed to save customer: ${err instanceof Error ? err.message : String(err)}`)
+      // Show more detailed error information
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      const errorDetails = err instanceof Error && err.stack ? err.stack : 'No stack trace'
+      alert(`Failed to save customer:\n\nError: ${errorMessage}\n\nDetails: ${errorDetails}`)
     }
   }
 

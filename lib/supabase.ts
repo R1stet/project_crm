@@ -18,14 +18,14 @@ export type Database = {
           status: string
           dress: string | null
           maker: string | null
-          size_bryst: string | null
-          size_talje: string | null
-          size_hofte: string | null
-          size_arms: string | null
-          size_height: string | null
+          size_bryst: number | null
+          size_talje: number | null
+          size_hofte: number | null
+          size_arms: number | null
+          size_height: number | null
           invoice_status: string
-          invoice_pdf: string | null
-          confirmation_pdf: string | null
+          invoice_file_url: string | null
+          confirmation_file_url: string | null
           notes: string | null
           wedding_date: string | null
           date_added: string
@@ -42,14 +42,14 @@ export type Database = {
           status?: string
           dress?: string | null
           maker?: string | null
-          size_bryst?: string | null
-          size_talje?: string | null
-          size_hofte?: string | null
-          size_arms?: string | null
-          size_height?: string | null
+          size_bryst?: number | null
+          size_talje?: number | null
+          size_hofte?: number | null
+          size_arms?: number | null
+          size_height?: number | null
           invoice_status?: string
-          invoice_pdf?: string | null
-          confirmation_pdf?: string | null
+          invoice_file_url?: string | null
+          confirmation_file_url?: string | null
           notes?: string | null
           wedding_date?: string | null
           date_added?: string
@@ -64,14 +64,14 @@ export type Database = {
           status?: string
           dress?: string | null
           maker?: string | null
-          size_bryst?: string | null
-          size_talje?: string | null
-          size_hofte?: string | null
-          size_arms?: string | null
-          size_height?: string | null
+          size_bryst?: number | null
+          size_talje?: number | null
+          size_hofte?: number | null
+          size_arms?: number | null
+          size_height?: number | null
           invoice_status?: string
-          invoice_pdf?: string | null
-          confirmation_pdf?: string | null
+          invoice_file_url?: string | null
+          confirmation_file_url?: string | null
           notes?: string | null
           wedding_date?: string | null
           date_added?: string
