@@ -1,0 +1,198 @@
+"use client"
+
+import { useState, useMemo, useEffect } from "react"
+import { Header } from "@/components/header"
+import { CustomerTable } from "@/components/customer-table"
+import { CustomerModal } from "@/components/customer-modal"
+import { useCustomers } from "@/hooks/use-customers"
+import type { Customer } from "@/types/customer"
+import { Loader2 } from "lucide-react"
+
+interface DashboardProps {
+  currentUser: string
+  onLogout: () => void
+}
+
+export function Dashboard({ currentUser, onLogout }: DashboardProps) {
+  const {
+    customers: allCustomers,
+    loading,
+    error,
+    addCustomer,
+    updateCustomer,
+    deleteCustomer,
+    searchCustomers,
+    refetch,
+  } = useCustomers()
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortField, setSortField] = useState<keyof Customer>("name")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const [filters, setFilters] = useState<Record<string, string>>({})
+
+  // Handle search with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        searchCustomers(searchQuery)
+      } else {
+        refetch()
+      }
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
+
+  const filteredAndSortedCustomers = useMemo(() => {
+    let filtered = [...allCustomers]
+
+    // Apply column filters
+    for (const [field, value] of Object.entries(filters)) {
+      if (value) {
+        filtered = filtered.filter((customer) => {
+          const customerValue = customer[field as keyof Customer]
+          if (typeof customerValue === "string") {
+            return customerValue.toLowerCase().includes(value.toLowerCase())
+          }
+          return false
+        })
+      }
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue = a[sortField]
+      let bValue = b[sortField]
+
+      // Handle nested size object
+      if (sortField === "size") {
+        aValue = JSON.stringify(a.size)
+        bValue = JSON.stringify(b.size)
+      }
+
+      const aStr = aValue?.toString() || ""
+      const bStr = bValue?.toString() || ""
+
+      if (sortDirection === "asc") {
+        return aStr.localeCompare(bStr)
+      } else {
+        return bStr.localeCompare(aStr)
+      }
+    })
+
+    return filtered
+  }, [allCustomers, sortField, sortDirection, filters])
+
+  const handleAddCustomer = () => {
+    setEditingCustomer(null)
+    setIsModalOpen(true)
+  }
+
+  const handleEditCustomer = (customer: Customer) => {
+    setEditingCustomer(customer)
+    setIsModalOpen(true)
+  }
+
+  const handleSaveCustomer = async (
+    customerData: Omit<Customer, "id" | "createdBy" | "createdAt" | "updatedAt" | "dateAdded">,
+  ) => {
+    try {
+      if (editingCustomer) {
+        await updateCustomer(editingCustomer.id, customerData)
+      } else {
+        await addCustomer({
+          ...customerData,
+          createdBy: currentUser,
+        })
+      }
+      setIsModalOpen(false)
+    } catch (err) {
+      console.error("Failed to save customer:", err)
+      console.error("Error details:", {
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        customerData: customerData,
+      })
+      alert(`Failed to save customer: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  const handleDeleteCustomer = async (id: string) => {
+    try {
+      await deleteCustomer(id)
+    } catch (err) {
+      console.error("Failed to delete customer:", err)
+      // You could add a toast notification here
+    }
+  }
+
+  const handleSort = (field: keyof Customer) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))
+    } else {
+      setSortField(field)
+      setSortDirection("asc")
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading customers...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button onClick={refetch} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header
+        currentUser={currentUser}
+        onLogout={onLogout}
+        onAddCustomer={handleAddCustomer}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
+
+      <main className="container mx-auto px-4 py-6">
+        <div className="bg-white rounded-lg shadow">
+          <CustomerTable
+            customers={filteredAndSortedCustomers}
+            onEditCustomer={handleEditCustomer}
+            onDeleteCustomer={handleDeleteCustomer}
+            onSort={handleSort}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            filters={filters}
+            onFilterChange={setFilters}
+          />
+        </div>
+      </main>
+
+      <CustomerModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveCustomer}
+        customer={editingCustomer}
+      />
+    </div>
+  )
+}
