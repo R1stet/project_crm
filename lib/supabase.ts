@@ -18,6 +18,7 @@ export type Database = {
           status: string
           dress: string | null
           maker: string | null
+          skraedder: string | null
           size_bryst: number | null
           size_talje: number | null
           size_hofte: number | null
@@ -42,6 +43,7 @@ export type Database = {
           status?: string
           dress?: string | null
           maker?: string | null
+          skraedder?: string | null
           size_bryst?: number | null
           size_talje?: number | null
           size_hofte?: number | null
@@ -64,6 +66,7 @@ export type Database = {
           status?: string
           dress?: string | null
           maker?: string | null
+          skraedder?: string | null
           size_bryst?: number | null
           size_talje?: number | null
           size_hofte?: number | null

@@ -37,13 +37,13 @@ export function CustomerTable({
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case "færdig":
+      case "kjole afhentet":
         return "default"
       case "i produktion":
         return "secondary"
-      case "venter på prøvning":
-        return "outline"
-      case "venter":
+      case "kjole ankommet":
+        return "secondary"
+      case "afventer":
         return "outline"
       default:
         return "outline"
@@ -74,7 +74,7 @@ export function CustomerTable({
       {/* Filters */}
       {showFilters && (
         <div className="p-4 bg-gray-50 border-b">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Sælger</label>
               <Input
@@ -92,7 +92,7 @@ export function CustomerTable({
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Kjole</label>
+              <label className="text-sm font-medium mb-1 block">brudekjole</label>
               <Input
                 placeholder="Filtrer efter kjole"
                 value={filters.dress || ""}
@@ -100,11 +100,19 @@ export function CustomerTable({
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Producent</label>
+              <label className="text-sm font-medium mb-1 block">Leverandør</label>
               <Input
                 placeholder="Filtrer efter producent"
                 value={filters.maker || ""}
                 onChange={(e) => handleFilterChange("maker", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Skrædder</label>
+              <Input
+                placeholder="Filtrer efter skrædder"
+                value={filters.skrædder || ""}
+                onChange={(e) => handleFilterChange("skrædder", e.target.value)}
               />
             </div>
           </div>
@@ -117,16 +125,17 @@ export function CustomerTable({
           <TableHeader>
             <TableRow>
               <SortableHeader field="name">Navn</SortableHeader>
+              <SortableHeader field="weddingDate">Bryllupsdato</SortableHeader>
               <SortableHeader field="email">Email</SortableHeader>
               <SortableHeader field="phoneNumber">Telefon</SortableHeader>
               <SortableHeader field="salesperson">Sælger</SortableHeader>
               <SortableHeader field="status">Status</SortableHeader>
-              <SortableHeader field="dress">Kjole</SortableHeader>
-              <SortableHeader field="maker">Producent</SortableHeader>
+              <SortableHeader field="dress">brudekjole</SortableHeader>
+              <SortableHeader field="maker">Leverandør</SortableHeader>
+              <SortableHeader field="skrædder">Skrædder</SortableHeader>
               <TableHead>Størrelse</TableHead>
               <SortableHeader field="invoiceStatus">Faktura</SortableHeader>
               <TableHead>Dokumenter</TableHead>
-              <SortableHeader field="weddingDate">Bryllupsdato</SortableHeader>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -137,6 +146,7 @@ export function CustomerTable({
                 onClick={() => onViewCustomer(customer)}
               >
                 <TableCell className="font-medium">{customer.name}</TableCell>
+                <TableCell className="font-medium text-blue-600">{customer.weddingDate}</TableCell>
                 <TableCell>{customer.email}</TableCell>
                 <TableCell className="hidden sm:table-cell">{customer.phoneNumber}</TableCell>
                 <TableCell className="hidden md:table-cell">{customer.salesperson}</TableCell>
@@ -145,6 +155,7 @@ export function CustomerTable({
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">{customer.dress}</TableCell>
                 <TableCell className="hidden lg:table-cell">{customer.maker}</TableCell>
+                <TableCell className="hidden lg:table-cell">{customer.skrædder}</TableCell>
                 <TableCell className="hidden xl:table-cell">
                   <div className="text-xs space-y-1">
                     <div>B: {customer.size.bryst}cm</div>
@@ -187,7 +198,6 @@ export function CustomerTable({
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">{customer.weddingDate}</TableCell>
               </TableRow>
             ))}
           </TableBody>

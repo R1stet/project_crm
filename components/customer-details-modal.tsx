@@ -38,13 +38,13 @@ export function CustomerDetailsModal({
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case "færdig":
+      case "kjole afhentet":
         return "default"
       case "i produktion":
         return "secondary"
-      case "venter på prøvning":
-        return "outline"
-      case "venter":
+      case "kjole ankommet":
+        return "secondary"
+      case "afventer":
         return "outline"
       default:
         return "outline"
@@ -101,7 +101,11 @@ export function CustomerDetailsModal({
           {/* Contact Information */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Kontaktoplysninger</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-600">Bryllupsdato</label>
+                <p className="text-sm font-semibold text-blue-600">{formatDate(customer.weddingDate)}</p>
+              </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Email</label>
                 <p className="text-sm">{customer.email}</p>
@@ -130,12 +134,16 @@ export function CustomerDetailsModal({
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">Kjole</label>
+                <label className="text-sm font-medium text-gray-600">brudekjole</label>
                 <p className="text-sm">{customer.dress || "Ikke angivet"}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">Producent</label>
+                <label className="text-sm font-medium text-gray-600">Leverandør</label>
                 <p className="text-sm">{customer.maker || "Ikke angivet"}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Skrædder</label>
+                <p className="text-sm">{customer.skrædder || "Ikke angivet"}</p>
               </div>
             </div>
           </div>
@@ -170,7 +178,7 @@ export function CustomerDetailsModal({
           {/* Invoice and Documents */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Faktura og Dokumenter</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Fakturastatus</label>
                 <div className="mt-1">
@@ -178,10 +186,6 @@ export function CustomerDetailsModal({
                     {customer.invoiceStatus}
                   </Badge>
                 </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Bryllupsdato</label>
-                <p className="text-sm">{formatDate(customer.weddingDate)}</p>
               </div>
             </div>
             

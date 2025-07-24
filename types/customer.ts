@@ -1,10 +1,9 @@
 // /types/customer.ts
 export type Status =
-  | 'Venter'
-  | 'Venter på prøvning'
+  | 'afventer'
   | 'I produktion'
-  | 'Klar til afhentning'
-  | 'Færdig';
+  | 'Kjole ankommet'
+  | 'Kjole afhentet';
 
 export type DressType =
   | 'A-line'
@@ -33,6 +32,7 @@ export interface Customer {
   status: Status;
   dress: DressType;
   maker: string | null;
+  skrædder: string | null;
   size: Size;
   invoiceStatus: InvoiceStatus;
   invoiceFileUrl: string | null;
@@ -59,6 +59,7 @@ export function dbRowToCustomer(row: any): Customer {
     status: row.status,
     dress: row.dress,
     maker: row.maker,
+    skrædder: row.skraedder,
     size: {
       bryst: toNum(row.size_bryst),
       talje: toNum(row.size_talje),
@@ -89,6 +90,7 @@ export function customerToDbRow(
     status: customer.status,
     dress: customer.dress,
     maker: customer.maker,
+    skraedder: customer.skrædder,
     size_bryst: customer.size.bryst,
     size_talje: customer.size.talje,
     size_hofte: customer.size.hofte,

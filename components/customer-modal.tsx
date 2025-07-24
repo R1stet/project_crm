@@ -36,11 +36,10 @@ interface CustomerModalProps {
 
 const dressOptions: DressType[] = ['A-line', 'Ball gown', 'Mermaid', 'Sheath', 'Tea-length'];
 const statusOptions: Status[] = [
-  'Venter',
-  'Venter på prøvning',
+  'afventer',
   'I produktion',
-  'Klar til afhentning',
-  'Færdig',
+  'Kjole ankommet',
+  'Kjole afhentet',
 ];
 const invoiceOptions: InvoiceStatus[] = ['Skal sendes', 'Sendt', 'Delvist betalt', 'Betalt'];
 
@@ -50,9 +49,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     email: '',
     phoneNumber: '',
     salesperson: '',
-    status: 'Venter' as Status,
+    status: 'afventer' as Status,
     dress: null as DressType,
     maker: '',
+    skrædder: '',
     size: {
       bryst: '',
       talje: '',
@@ -84,6 +84,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         status: customer.status,
         dress: customer.dress,
         maker: customer.maker ?? '',
+        skrædder: customer.skrædder ?? '',
         size: {
           bryst: customer.size.bryst?.toString() ?? '',
           talje: customer.size.talje?.toString() ?? '',
@@ -104,9 +105,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         email: '',
         phoneNumber: '',
         salesperson: '',
-        status: 'Venter',
+        status: 'afventer',
         dress: null,
         maker: '',
+        skrædder: '',
         size: {
           bryst: '',
           talje: '',
@@ -206,6 +208,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         salesperson: formData.salesperson || null,
         dress: formData.dress,
         maker: formData.maker || null,
+        skrædder: formData.skrædder || null,
         size: {
           bryst: toNum(formData.size.bryst),
           talje: toNum(formData.size.talje),
@@ -241,6 +244,17 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           <div className="space-y-2">
             <Label htmlFor="name">Navn *</Label>
             <Input id="name" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
+          </div>
+
+          {/* wedding date */}
+          <div className="space-y-2">
+            <Label htmlFor="weddingDate">Bryllupsdato</Label>
+            <Input
+              id="weddingDate"
+              type="date"
+              value={formData.weddingDate}
+              onChange={(e) => handleChange('weddingDate', e.target.value)}
+            />
           </div>
 
           {/* email + phone */}
@@ -292,10 +306,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
             </div>
           </div>
 
-          {/* dress + maker */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* dress + maker + skrædder */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dress">Kjole</Label>
+              <Label htmlFor="dress">brudekjole</Label>
               <Select value={formData.dress ?? ''} onValueChange={(v) => handleChange('dress', v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Vælg type" />
@@ -310,8 +324,12 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="maker">Producent</Label>
+              <Label htmlFor="maker">Leverandør</Label>
               <Input id="maker" value={formData.maker} onChange={(e) => handleChange('maker', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="skraedder">Skrædder</Label>
+              <Input id="skraedder" value={formData.skrædder} onChange={(e) => handleChange('skrædder', e.target.value)} />
             </div>
           </div>
 
@@ -337,32 +355,21 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
             </div>
           </div>
 
-          {/* invoice status + wedding date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="invoiceStatus">Fakturastatus</Label>
-              <Select value={formData.invoiceStatus} onValueChange={(v) => handleChange('invoiceStatus', v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Vælg fakturastatus" />
-                </SelectTrigger>
-                <SelectContent>
-                  {invoiceOptions.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {opt}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="weddingDate">Bryllupsdato</Label>
-              <Input
-                id="weddingDate"
-                type="date"
-                value={formData.weddingDate}
-                onChange={(e) => handleChange('weddingDate', e.target.value)}
-              />
-            </div>
+          {/* invoice status */}
+          <div className="space-y-2">
+            <Label htmlFor="invoiceStatus">Fakturastatus</Label>
+            <Select value={formData.invoiceStatus} onValueChange={(v) => handleChange('invoiceStatus', v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Vælg fakturastatus" />
+              </SelectTrigger>
+              <SelectContent>
+                {invoiceOptions.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* file URLs */}
