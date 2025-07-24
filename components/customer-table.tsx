@@ -60,9 +60,9 @@ export function CustomerTable({
   }
 
   const SortableHeader = ({ field, children }: { field: keyof Customer; children: React.ReactNode }) => (
-    <TableHead className="cursor-pointer select-none" onClick={() => onSort(field)}>
-      <div className="flex items-center space-x-1">
-        <span>{children}</span>
+    <TableHead className="cursor-pointer select-none text-center" onClick={() => onSort(field)}>
+      <div className="flex items-center justify-center space-x-1">
+        <span className="font-bold">{children}</span>
         {sortField === field &&
           (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
       </div>
@@ -220,21 +220,21 @@ export function CustomerTable({
             {customers.map((customer) => (
               <TableRow 
                 key={customer.id} 
-                className="hover:bg-gray-50 cursor-pointer"
+                className="hover:bg-gray-50 cursor-pointer h-16"
                 onClick={() => onViewCustomer(customer)}
               >
-                <TableCell className="font-medium">{customer.name}</TableCell>
-                <TableCell className="font-medium text-blue-600">{customer.weddingDate}</TableCell>
-                <TableCell>{customer.email}</TableCell>
-                <TableCell className="hidden sm:table-cell">{customer.phoneNumber}</TableCell>
-                <TableCell className="hidden md:table-cell">{customer.salesperson}</TableCell>
-                <TableCell>
+                <TableCell className="font-medium py-4">{customer.name}</TableCell>
+                <TableCell className="font-medium text-blue-600 py-4">{customer.weddingDate}</TableCell>
+                <TableCell className="py-4">{customer.email}</TableCell>
+                <TableCell className="hidden sm:table-cell py-4">{customer.phoneNumber}</TableCell>
+                <TableCell className="hidden md:table-cell py-4">{customer.salesperson}</TableCell>
+                <TableCell className="py-4">
                   <Badge variant={getStatusBadgeVariant(customer.status)}>{customer.status}</Badge>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">{customer.dress}</TableCell>
-                <TableCell className="hidden lg:table-cell">{customer.maker}</TableCell>
-                <TableCell className="hidden lg:table-cell">{customer.skrædder}</TableCell>
-                <TableCell>
+                <TableCell className="hidden lg:table-cell py-4">{customer.dress}</TableCell>
+                <TableCell className="hidden lg:table-cell py-4">{customer.maker}</TableCell>
+                <TableCell className="hidden lg:table-cell py-4">{customer.skrædder}</TableCell>
+                <TableCell className="py-4">
                   <Badge variant={customer.invoiceStatus === "Betalt" ? "default" : "secondary"}>
                     {customer.invoiceStatus}
                   </Badge>
