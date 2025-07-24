@@ -159,20 +159,22 @@ export function CustomerTable({
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">
                   <div className="flex space-x-1">
-                    {customer.invoicePdf && (
+                    {customer.invoiceFileUrl && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => customer.invoicePdf && window.open(customer.invoicePdf, "_blank")}
+                        onClick={() => customer.invoiceFileUrl && window.open(customer.invoiceFileUrl, "_blank")}
+                        title="View Invoice PDF"
                       >
                         📄
                       </Button>
                     )}
-                    {customer.confirmationPdf && (
+                    {customer.confirmationFileUrl && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => customer.confirmationPdf && window.open(customer.confirmationPdf, "_blank")}
+                        onClick={() => customer.confirmationFileUrl && window.open(customer.confirmationFileUrl, "_blank")}
+                        title="View Confirmation PDF"
                       >
                         ✅
                       </Button>
