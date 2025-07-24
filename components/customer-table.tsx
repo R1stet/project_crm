@@ -40,13 +40,13 @@ export function CustomerTable({
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case "finished":
+      case "færdig":
         return "default"
-      case "in production":
+      case "i produktion":
         return "secondary"
-      case "awaiting fitting":
+      case "venter på prøvning":
         return "outline"
-      case "awaiting":
+      case "venter":
         return "outline"
       default:
         return "outline"
@@ -67,10 +67,10 @@ export function CustomerTable({
     <div className="space-y-4">
       {/* Filter Toggle */}
       <div className="flex justify-between items-center p-4 border-b">
-        <h2 className="text-lg font-semibold">Customers ({customers.length})</h2>
+        <h2 className="text-lg font-semibold">Kunder ({customers.length})</h2>
         <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
           <Filter className="h-4 w-4 mr-2" />
-          Filters
+          Filtre
         </Button>
       </div>
 
@@ -79,9 +79,9 @@ export function CustomerTable({
         <div className="p-4 bg-gray-50 border-b">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">Salesperson</label>
+              <label className="text-sm font-medium mb-1 block">Sælger</label>
               <Input
-                placeholder="Filter by salesperson"
+                placeholder="Filtrer efter sælger"
                 value={filters.salesperson || ""}
                 onChange={(e) => handleFilterChange("salesperson", e.target.value)}
               />
@@ -89,23 +89,23 @@ export function CustomerTable({
             <div>
               <label className="text-sm font-medium mb-1 block">Status</label>
               <Input
-                placeholder="Filter by status"
+                placeholder="Filtrer efter status"
                 value={filters.status || ""}
                 onChange={(e) => handleFilterChange("status", e.target.value)}
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Dress</label>
+              <label className="text-sm font-medium mb-1 block">Kjole</label>
               <Input
-                placeholder="Filter by dress"
+                placeholder="Filtrer efter kjole"
                 value={filters.dress || ""}
                 onChange={(e) => handleFilterChange("dress", e.target.value)}
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Maker</label>
+              <label className="text-sm font-medium mb-1 block">Producent</label>
               <Input
-                placeholder="Filter by maker"
+                placeholder="Filtrer efter producent"
                 value={filters.maker || ""}
                 onChange={(e) => handleFilterChange("maker", e.target.value)}
               />
@@ -119,18 +119,18 @@ export function CustomerTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <SortableHeader field="name">Name</SortableHeader>
+              <SortableHeader field="name">Navn</SortableHeader>
               <SortableHeader field="email">Email</SortableHeader>
-              <SortableHeader field="phoneNumber">Phone</SortableHeader>
-              <SortableHeader field="salesperson">Salesperson</SortableHeader>
+              <SortableHeader field="phoneNumber">Telefon</SortableHeader>
+              <SortableHeader field="salesperson">Sælger</SortableHeader>
               <SortableHeader field="status">Status</SortableHeader>
-              <SortableHeader field="dress">Dress</SortableHeader>
-              <SortableHeader field="maker">Maker</SortableHeader>
-              <TableHead>Size</TableHead>
-              <SortableHeader field="invoiceStatus">Invoice</SortableHeader>
-              <TableHead>Documents</TableHead>
-              <SortableHeader field="weddingDate">Wedding Date</SortableHeader>
-              <TableHead>Actions</TableHead>
+              <SortableHeader field="dress">Kjole</SortableHeader>
+              <SortableHeader field="maker">Producent</SortableHeader>
+              <TableHead>Størrelse</TableHead>
+              <SortableHeader field="invoiceStatus">Faktura</SortableHeader>
+              <TableHead>Dokumenter</TableHead>
+              <SortableHeader field="weddingDate">Bryllupsdato</SortableHeader>
+              <TableHead>Handlinger</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -153,7 +153,7 @@ export function CustomerTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={customer.invoiceStatus === "Paid" ? "default" : "secondary"}>
+                  <Badge variant={customer.invoiceStatus === "Betalt" ? "default" : "secondary"}>
                     {customer.invoiceStatus}
                   </Badge>
                 </TableCell>
@@ -164,7 +164,7 @@ export function CustomerTable({
                         variant="ghost"
                         size="sm"
                         onClick={() => customer.invoiceFileUrl && window.open(customer.invoiceFileUrl, "_blank")}
-                        title="View Invoice PDF"
+                        title="Vis Faktura PDF"
                       >
                         📄
                       </Button>
@@ -174,7 +174,7 @@ export function CustomerTable({
                         variant="ghost"
                         size="sm"
                         onClick={() => customer.confirmationFileUrl && window.open(customer.confirmationFileUrl, "_blank")}
-                        title="View Confirmation PDF"
+                        title="Vis Bekræftelses PDF"
                       >
                         ✅
                       </Button>
@@ -186,18 +186,18 @@ export function CustomerTable({
                   <div className="flex space-x-2">
                     <Button variant="ghost" size="sm" onClick={() => onEditCustomer(customer)}>
                       <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
+                      <span className="sr-only">Rediger</span>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
                           <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
+                          <span className="sr-only">Slet</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuItem onClick={() => onDeleteCustomer(customer.id)} className="text-red-600">
-                          Delete Customer
+                          Slet Kunde
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -210,7 +210,7 @@ export function CustomerTable({
       </div>
 
       {customers.length === 0 && (
-        <div className="text-center py-8 text-gray-500">No customers found. Try adjusting your search or filters.</div>
+        <div className="text-center py-8 text-gray-500">Ingen kunder fundet. Prøv at justere din søgning eller filtre.</div>
       )}
     </div>
   )

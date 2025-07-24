@@ -36,13 +36,13 @@ interface CustomerModalProps {
 
 const dressOptions: DressType[] = ['A-line', 'Ball gown', 'Mermaid', 'Sheath', 'Tea-length'];
 const statusOptions: Status[] = [
-  'Awaiting',
-  'Awaiting fitting',
-  'In production',
-  'Ready for pickup',
-  'Finished',
+  'Venter',
+  'Venter på prøvning',
+  'I produktion',
+  'Klar til afhentning',
+  'Færdig',
 ];
-const invoiceOptions: InvoiceStatus[] = ['To be sent', 'Sent', 'Partially paid', 'Paid'];
+const invoiceOptions: InvoiceStatus[] = ['Skal sendes', 'Sendt', 'Delvist betalt', 'Betalt'];
 
 export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerModalProps) {
   const [formData, setFormData] = useState({
@@ -50,7 +50,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     email: '',
     phoneNumber: '',
     salesperson: '',
-    status: 'Awaiting' as Status,
+    status: 'Venter' as Status,
     dress: null as DressType,
     maker: '',
     size: {
@@ -60,7 +60,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       arms: '',
       height: '',
     },
-    invoiceStatus: 'To be sent' as InvoiceStatus,
+    invoiceStatus: 'Skal sendes' as InvoiceStatus,
     invoiceFileUrl: '',
     confirmationFileUrl: '',
     notes: '',
@@ -102,7 +102,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         email: '',
         phoneNumber: '',
         salesperson: '',
-        status: 'Awaiting',
+        status: 'Venter',
         dress: null,
         maker: '',
         size: {
@@ -112,7 +112,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           arms: '',
           height: '',
         },
-        invoiceStatus: 'To be sent',
+        invoiceStatus: 'Skal sendes',
         invoiceFileUrl: '',
         confirmationFileUrl: '',
         notes: '',
@@ -140,13 +140,13 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Please select a PDF file');
+      alert('Vælg venligst en PDF fil');
       return;
     }
 
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB');
+      alert('Filstørrelse skal være mindre end 10MB');
       return;
     }
 
@@ -156,7 +156,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       handleChange('invoiceFileUrl', url);
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      alert('Upload fejlede. Prøv igen.');
     } finally {
       setUploading(false);
     }
@@ -200,16 +200,16 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{customer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+          <DialogTitle>{customer ? 'Rediger Kunde' : 'Tilføj Ny Kunde'}</DialogTitle>
           <DialogDescription>
-            {customer ? 'Update customer information below.' : 'Enter customer details below.'}
+            {customer ? 'Opdater kundeinformation nedenfor.' : 'Indtast kundeoplysninger nedenfor.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">Navn *</Label>
             <Input id="name" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
           </div>
 
@@ -226,7 +226,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">Telefonnummer</Label>
               <Input
                 id="phoneNumber"
                 value={formData.phoneNumber}
@@ -238,7 +238,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* salesperson + status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="salesperson">Salesperson</Label>
+              <Label htmlFor="salesperson">Sælger</Label>
               <Input
                 id="salesperson"
                 value={formData.salesperson}
@@ -249,7 +249,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(v) => handleChange('status', v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Vælg status" />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((opt) => (
@@ -265,10 +265,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* dress + maker */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dress">Dress</Label>
+              <Label htmlFor="dress">Kjole</Label>
               <Select value={formData.dress ?? ''} onValueChange={(v) => handleChange('dress', v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Vælg type" />
                 </SelectTrigger>
                 <SelectContent>
                   {dressOptions.map((opt) => (
@@ -280,14 +280,14 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="maker">Maker</Label>
+              <Label htmlFor="maker">Producent</Label>
               <Input id="maker" value={formData.maker} onChange={(e) => handleChange('maker', e.target.value)} />
             </div>
           </div>
 
           {/* sizes */}
           <div className="space-y-2">
-            <Label>Size Measurements (cm)</Label>
+            <Label>Størrelsesmål (cm)</Label>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               {(['bryst', 'talje', 'hofte', 'arms', 'height'] as const).map((field) => (
                 <div key={field}>
@@ -310,10 +310,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* invoice status + wedding date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="invoiceStatus">Invoice Status</Label>
+              <Label htmlFor="invoiceStatus">Fakturastatus</Label>
               <Select value={formData.invoiceStatus} onValueChange={(v) => handleChange('invoiceStatus', v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select invoice status" />
+                  <SelectValue placeholder="Vælg fakturastatus" />
                 </SelectTrigger>
                 <SelectContent>
                   {invoiceOptions.map((opt) => (
@@ -325,7 +325,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="weddingDate">Wedding Date</Label>
+              <Label htmlFor="weddingDate">Bryllupsdato</Label>
               <Input
                 id="weddingDate"
                 type="date"
@@ -338,11 +338,11 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* file URLs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="invoiceFileUrl">Invoice File URL</Label>
+              <Label htmlFor="invoiceFileUrl">Faktura Fil URL</Label>
               <div className="flex gap-2">
                 <Input
                   id="invoiceFileUrl"
-                  placeholder="invoices/{id}.pdf or upload file"
+                  placeholder="fakturaer/{id}.pdf eller upload fil"
                   value={formData.invoiceFileUrl}
                   onChange={(e) => handleChange('invoiceFileUrl', e.target.value)}
                   disabled={uploading}
@@ -373,14 +373,14 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                 </div>
               </div>
               {uploading && (
-                <p className="text-xs text-blue-600">Uploading PDF...</p>
+                <p className="text-xs text-blue-600">Uploader PDF...</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmationFileUrl">Confirmation File URL</Label>
+              <Label htmlFor="confirmationFileUrl">Bekræftelses Fil URL</Label>
               <Input
                 id="confirmationFileUrl"
-                placeholder="confirmations/{id}.pdf"
+                placeholder="bekræftelser/{id}.pdf"
                 value={formData.confirmationFileUrl}
                 onChange={(e) => handleChange('confirmationFileUrl', e.target.value)}
               />
@@ -389,7 +389,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
 
           {/* notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">Noter</Label>
             <Textarea
               id="notes"
               value={formData.notes}
@@ -401,10 +401,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* footer */}
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
-              Cancel
+              Annuller
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? 'Saving...' : customer ? 'Update Customer' : 'Add Customer'}
+              {saving ? 'Gemmer...' : customer ? 'Opdater Kunde' : 'Tilføj Kunde'}
             </Button>
           </DialogFooter>
         </form>

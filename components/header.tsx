@@ -14,13 +14,21 @@ interface HeaderProps {
 }
 
 export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSearchChange }: HeaderProps) {
+  // Extract email from currentUser string (assumes format: "firstname lastname email")
+  const extractEmail = (userString: string): string => {
+    const emailRegex = /\S+@\S+\.\S+/
+    const match = userString.match(emailRegex)
+    return match ? match[0] : userString
+  }
+  
+  const userEmail = extractEmail(currentUser)
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Navigation */}
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-gray-900">Wedding Dress CRM</h1>
+            <h1 className="text-xl font-bold text-gray-900">Brudekjole CRM</h1>
             <Button variant="ghost" size="sm" className="hidden sm:flex">
               <Home className="h-4 w-4 mr-2" />
               Dashboard
@@ -33,7 +41,7 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search customers, dresses, makers..."
+                placeholder="Søg kunder, kjoler, producenter..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className="pl-10 w-full"
@@ -55,7 +63,7 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
                   <div className="p-2">
                     <Input
                       type="text"
-                      placeholder="Search customers, dresses, makers..."
+                      placeholder="Søg kunder, kjoler, producenter..."
                       value={searchQuery}
                       onChange={(e) => onSearchChange(e.target.value)}
                     />
@@ -66,7 +74,7 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
 
             <Button onClick={onAddCustomer} size="sm" className="hidden sm:flex">
               <Plus className="h-4 w-4 mr-2" />
-              Add Customer
+              Tilføj Kunde
             </Button>
 
             {/* Mobile add button */}
@@ -78,15 +86,15 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                    {currentUser.charAt(0).toUpperCase()}
+                    {userEmail.charAt(0).toUpperCase()}
                   </div>
-                  <span className="ml-2 hidden sm:inline">{currentUser}</span>
+                  <span className="ml-2 hidden sm:inline">{userEmail}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={onLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
+                  Log Ud
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

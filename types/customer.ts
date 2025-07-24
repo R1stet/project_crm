@@ -1,10 +1,10 @@
 // /types/customer.ts
 export type Status =
-  | 'Awaiting'
-  | 'Awaiting fitting'
-  | 'In production'
-  | 'Ready for pickup'
-  | 'Finished';
+  | 'Venter'
+  | 'Venter på prøvning'
+  | 'I produktion'
+  | 'Klar til afhentning'
+  | 'Færdig';
 
 export type DressType =
   | 'A-line'
@@ -14,7 +14,7 @@ export type DressType =
   | 'Tea-length'
   | null;
 
-export type InvoiceStatus = 'To be sent' | 'Sent' | 'Partially paid' | 'Paid';
+export type InvoiceStatus = 'Skal sendes' | 'Sendt' | 'Delvist betalt' | 'Betalt';
 
 export interface Size {
   bryst: number | null;
