@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react"
 import { Header } from "@/components/header"
 import { CustomerTable } from "@/components/customer-table"
 import { CustomerModal } from "@/components/customer-modal"
+import { CustomerDetailsModal } from "@/components/customer-details-modal"
 import { useCustomers } from "@/hooks/use-customers"
 import type { Customer } from "@/types/customer"
 import { Loader2 } from "lucide-react"
@@ -26,7 +27,9 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   } = useCustomers()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortField, setSortField] = useState<keyof Customer>("name")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
@@ -93,6 +96,12 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   const handleEditCustomer = (customer: Customer) => {
     setEditingCustomer(customer)
     setIsModalOpen(true)
+    setIsDetailsModalOpen(false) // Close details modal when opening edit modal
+  }
+
+  const handleViewCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer)
+    setIsDetailsModalOpen(true)
   }
 
   const handleSaveCustomer = async (
@@ -179,8 +188,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         <div className="bg-white rounded-lg shadow">
           <CustomerTable
             customers={filteredAndSortedCustomers}
-            onEditCustomer={handleEditCustomer}
-            onDeleteCustomer={handleDeleteCustomer}
+            onViewCustomer={handleViewCustomer}
             onSort={handleSort}
             sortField={sortField}
             sortDirection={sortDirection}
@@ -195,6 +203,14 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveCustomer}
         customer={editingCustomer}
+      />
+
+      <CustomerDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        customer={selectedCustomer}
+        onEdit={handleEditCustomer}
+        onDelete={handleDeleteCustomer}
       />
     </div>
   )

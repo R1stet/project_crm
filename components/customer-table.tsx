@@ -3,18 +3,16 @@
 import type React from "react"
 
 import { useState } from "react"
-import { ChevronUp, ChevronDown, Edit, Trash2, Filter } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import type { Customer } from "@/types/customer"
 
 interface CustomerTableProps {
   customers: Customer[]
-  onEditCustomer: (customer: Customer) => void
-  onDeleteCustomer: (id: string) => void
+  onViewCustomer: (customer: Customer) => void
   onSort: (field: keyof Customer) => void
   sortField: keyof Customer
   sortDirection: "asc" | "desc"
@@ -24,8 +22,7 @@ interface CustomerTableProps {
 
 export function CustomerTable({
   customers,
-  onEditCustomer,
-  onDeleteCustomer,
+  onViewCustomer,
   onSort,
   sortField,
   sortDirection,
@@ -130,12 +127,15 @@ export function CustomerTable({
               <SortableHeader field="invoiceStatus">Faktura</SortableHeader>
               <TableHead>Dokumenter</TableHead>
               <SortableHeader field="weddingDate">Bryllupsdato</SortableHeader>
-              <TableHead>Handlinger</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {customers.map((customer) => (
-              <TableRow key={customer.id} className="hover:bg-gray-50">
+              <TableRow 
+                key={customer.id} 
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => onViewCustomer(customer)}
+              >
                 <TableCell className="font-medium">{customer.name}</TableCell>
                 <TableCell>{customer.email}</TableCell>
                 <TableCell className="hidden sm:table-cell">{customer.phoneNumber}</TableCell>
@@ -163,7 +163,10 @@ export function CustomerTable({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => customer.invoiceFileUrl && window.open(customer.invoiceFileUrl, "_blank")}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          customer.invoiceFileUrl && window.open(customer.invoiceFileUrl, "_blank")
+                        }}
                         title="Vis Faktura PDF"
                       >
                         📄
@@ -173,7 +176,10 @@ export function CustomerTable({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => customer.confirmationFileUrl && window.open(customer.confirmationFileUrl, "_blank")}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          customer.confirmationFileUrl && window.open(customer.confirmationFileUrl, "_blank")
+                        }}
                         title="Vis Bekræftelses PDF"
                       >
                         ✅
@@ -182,27 +188,6 @@ export function CustomerTable({
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{customer.weddingDate}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" onClick={() => onEditCustomer(customer)}>
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Rediger</span>
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Slet</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onDeleteCustomer(customer.id)} className="text-red-600">
-                          Slet Kunde
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
