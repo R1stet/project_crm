@@ -45,6 +45,7 @@ export function CustomerDetailsModal({
       case "kjole ankommet":
         return "secondary"
       case "afventer":
+      case "Afventer":
         return "outline"
       default:
         return "outline"
@@ -134,7 +135,7 @@ export function CustomerDetailsModal({
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">brudekjole</label>
+                <label className="text-sm font-medium text-gray-600">Brudekjoler</label>
                 <p className="text-sm">{customer.dress || "Ikke angivet"}</p>
               </div>
               <div>

@@ -36,7 +36,7 @@ interface CustomerModalProps {
 
 const dressOptions: DressType[] = ['A-line', 'Ball gown', 'Mermaid', 'Sheath', 'Tea-length'];
 const statusOptions: Status[] = [
-  'afventer',
+  'Afventer',
   'I produktion',
   'Kjole ankommet',
   'Kjole afhentet',
@@ -49,7 +49,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     email: '',
     phoneNumber: '',
     salesperson: '',
-    status: 'afventer' as Status,
+    status: 'Afventer' as Status,
     dress: null as DressType,
     maker: '',
     skrædder: '',
@@ -105,7 +105,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         email: '',
         phoneNumber: '',
         salesperson: '',
-        status: 'afventer',
+        status: 'Afventer',
         dress: null,
         maker: '',
         skrædder: '',
@@ -309,7 +309,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* dress + maker + skrædder */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dress">brudekjole</Label>
+              <Label htmlFor="dress">Brudekjoler</Label>
               <Select value={formData.dress ?? ''} onValueChange={(v) => handleChange('dress', v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Vælg type" />

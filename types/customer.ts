@@ -1,6 +1,6 @@
 // /types/customer.ts
 export type Status =
-  | 'afventer'
+  | 'Afventer'
   | 'I produktion'
   | 'Kjole ankommet'
   | 'Kjole afhentet';

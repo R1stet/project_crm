@@ -67,6 +67,20 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
     for (const [field, value] of Object.entries(filters)) {
       if (value) {
         filtered = filtered.filter((customer) => {
+          // Special handling for wedding month filter
+          if (field === "weddingMonth") {
+            if (!customer.weddingDate) return false
+            const weddingDate = new Date(customer.weddingDate)
+            const month = (weddingDate.getMonth() + 1).toString().padStart(2, '0')
+            return month === value
+          }
+          
+          // Special handling for status filter (exact match)
+          if (field === "status") {
+            return customer.status === value
+          }
+          
+          // Handle other string-based filters (partial match)
           const customerValue = customer[field as keyof Customer]
           if (typeof customerValue === "string") {
             return customerValue.toLowerCase().includes(value.toLowerCase())
