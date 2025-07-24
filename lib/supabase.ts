@@ -25,7 +25,7 @@ export type Database = {
           size_height: number | null
           invoice_status: string
           invoice_file_url: string | null
-          confirmation_file_url: string | null
+          supplier_file_url: string | null
           notes: string | null
           wedding_date: string | null
           date_added: string
@@ -49,7 +49,7 @@ export type Database = {
           size_height?: number | null
           invoice_status?: string
           invoice_file_url?: string | null
-          confirmation_file_url?: string | null
+          supplier_file_url?: string | null
           notes?: string | null
           wedding_date?: string | null
           date_added?: string
@@ -71,7 +71,7 @@ export type Database = {
           size_height?: number | null
           invoice_status?: string
           invoice_file_url?: string | null
-          confirmation_file_url?: string | null
+          supplier_file_url?: string | null
           notes?: string | null
           wedding_date?: string | null
           date_added?: string

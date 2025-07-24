@@ -18,6 +18,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   const {
     customers: allCustomers,
     loading,
+    searching,
     error,
     addCustomer,
     updateCustomer,
@@ -43,13 +44,24 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
       } else {
         refetch()
       }
-    }, 300)
+    }, 500) // Increased to 500ms to let client-side filtering work first
 
     return () => clearTimeout(timeoutId)
   }, [searchQuery])
 
   const filteredAndSortedCustomers = useMemo(() => {
     let filtered = [...allCustomers]
+
+    // Apply search query as client-side filter (for immediate feedback)
+    if (searchQuery.trim() && !searching) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter((customer) =>
+        customer.name.toLowerCase().includes(query) ||
+        customer.email.toLowerCase().includes(query) ||
+        (customer.maker && customer.maker.toLowerCase().includes(query)) ||
+        (customer.notes && customer.notes.toLowerCase().includes(query))
+      )
+    }
 
     // Apply column filters
     for (const [field, value] of Object.entries(filters)) {
@@ -86,7 +98,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
     })
 
     return filtered
-  }, [allCustomers, sortField, sortDirection, filters])
+  }, [allCustomers, sortField, sortDirection, filters, searchQuery, searching])
 
   const handleAddCustomer = () => {
     setEditingCustomer(null)
@@ -182,10 +194,11 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         onAddCustomer={handleAddCustomer}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        searching={searching}
       />
 
       <main className="container mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow">
+        <div className={`bg-white rounded-lg shadow transition-opacity duration-200 ${searching ? 'opacity-75' : 'opacity-100'}`}>
           <CustomerTable
             customers={filteredAndSortedCustomers}
             onViewCustomer={handleViewCustomer}

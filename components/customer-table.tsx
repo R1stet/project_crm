@@ -172,17 +172,17 @@ export function CustomerTable({
                         📄
                       </Button>
                     )}
-                    {customer.confirmationFileUrl && (
+                    {customer.supplierFileUrl && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation()
-                          customer.confirmationFileUrl && window.open(customer.confirmationFileUrl, "_blank")
+                          customer.supplierFileUrl && window.open(customer.supplierFileUrl, "_blank")
                         }}
-                        title="Vis Bekræftelses PDF"
+                        title="Vis Leverandør PDF"
                       >
-                        ✅
+                        📦
                       </Button>
                     )}
                   </div>

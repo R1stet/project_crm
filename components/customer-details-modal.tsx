@@ -198,16 +198,16 @@ export function CustomerDetailsModal({
                     📄 Vis Faktura
                   </Button>
                 )}
-                {customer.confirmationFileUrl && (
+                {customer.supplierFileUrl && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open(customer.confirmationFileUrl!, "_blank")}
+                    onClick={() => window.open(customer.supplierFileUrl!, "_blank")}
                   >
-                    ✅ Vis Bekræftelse
+                    📦 Vis Leverandør
                   </Button>
                 )}
-                {!customer.invoiceFileUrl && !customer.confirmationFileUrl && (
+                {!customer.invoiceFileUrl && !customer.supplierFileUrl && (
                   <p className="text-sm text-gray-500">Ingen dokumenter tilgængelige</p>
                 )}
               </div>

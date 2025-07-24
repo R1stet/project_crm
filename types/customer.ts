@@ -36,7 +36,7 @@ export interface Customer {
   size: Size;
   invoiceStatus: InvoiceStatus;
   invoiceFileUrl: string | null;
-  confirmationFileUrl: string | null;
+  supplierFileUrl: string | null;
   notes: string | null;
   weddingDate: string | null;
   dateAdded: string;
@@ -68,7 +68,7 @@ export function dbRowToCustomer(row: any): Customer {
     },
     invoiceStatus: row.invoice_status,
     invoiceFileUrl: row.invoice_file_url,
-    confirmationFileUrl: row.confirmation_file_url,
+    supplierFileUrl: row.supplier_file_url,
     notes: row.notes,
     weddingDate: row.wedding_date,
     dateAdded: row.date_added,
@@ -96,7 +96,7 @@ export function customerToDbRow(
     size_height: customer.size.height,
     invoice_status: customer.invoiceStatus,
     invoice_file_url: customer.invoiceFileUrl,
-    confirmation_file_url: customer.confirmationFileUrl,
+    supplier_file_url: customer.supplierFileUrl,
     notes: customer.notes,
     wedding_date: customer.weddingDate,
     created_by: customer.createdBy,

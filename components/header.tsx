@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Plus, LogOut, Home } from "lucide-react"
+import { Search, Plus, LogOut, Home, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -11,9 +11,10 @@ interface HeaderProps {
   onAddCustomer: () => void
   searchQuery: string
   onSearchChange: (query: string) => void
+  searching?: boolean
 }
 
-export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSearchChange }: HeaderProps) {
+export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSearchChange, searching = false }: HeaderProps) {
   // Extract email from currentUser string (assumes format: "firstname lastname email")
   const extractEmail = (userString: string): string => {
     const emailRegex = /\S+@\S+\.\S+/
@@ -38,7 +39,11 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
           {/* Center - Search (hidden on mobile) */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              {searching ? (
+                <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              )}
               <Input
                 type="text"
                 placeholder="Søg kunder, kjoler, producenter..."
@@ -61,12 +66,20 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80">
                   <div className="p-2">
-                    <Input
-                      type="text"
-                      placeholder="Søg kunder, kjoler, producenter..."
-                      value={searchQuery}
-                      onChange={(e) => onSearchChange(e.target.value)}
-                    />
+                    <div className="relative">
+                      {searching ? (
+                        <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      )}
+                      <Input
+                        type="text"
+                        placeholder="Søg kunder, kjoler, producenter..."
+                        value={searchQuery}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>

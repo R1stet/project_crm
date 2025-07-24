@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { Customer, DressType, Status, InvoiceStatus } from '@/types/customer';
-import { uploadInvoice } from '@/lib/storage';
+import { uploadInvoice, uploadSupplierPDF } from '@/lib/storage';
 import { Upload, Loader2 } from 'lucide-react';
 
 interface CustomerModalProps {
@@ -62,14 +62,16 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     },
     invoiceStatus: 'Skal sendes' as InvoiceStatus,
     invoiceFileUrl: '',
-    confirmationFileUrl: '',
+    supplierFileUrl: '',
     notes: '',
     weddingDate: '',
   });
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingSupplier, setUploadingSupplier] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const supplierFileInputRef = useRef<HTMLInputElement>(null);
 
   /* ---------- sync incoming customer ---------- */
   useEffect(() => {
@@ -91,7 +93,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         },
         invoiceStatus: customer.invoiceStatus,
         invoiceFileUrl: customer.invoiceFileUrl ?? '',
-        confirmationFileUrl: customer.confirmationFileUrl ?? '',
+        supplierFileUrl: customer.supplierFileUrl ?? '',
         notes: customer.notes ?? '',
         weddingDate: customer.weddingDate ?? '',
       });
@@ -114,7 +116,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         },
         invoiceStatus: 'Skal sendes',
         invoiceFileUrl: '',
-        confirmationFileUrl: '',
+        supplierFileUrl: '',
         notes: '',
         weddingDate: '',
       });
@@ -162,6 +164,34 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     }
   };
 
+  const handleSupplierFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Vælg venligst en PDF fil');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Filstørrelse skal være mindre end 10MB');
+      return;
+    }
+
+    setUploadingSupplier(true);
+    try {
+      const url = await uploadSupplierPDF(file, customer?.id);
+      handleChange('supplierFileUrl', url);
+    } catch (error) {
+      console.error('Supplier upload failed:', error);
+      alert('Upload fejlede. Prøv igen.');
+    } finally {
+      setUploadingSupplier(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -184,7 +214,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           height: toNum(formData.size.height),
         },
         invoiceFileUrl: formData.invoiceFileUrl || null,
-        confirmationFileUrl: formData.confirmationFileUrl || null,
+        supplierFileUrl: formData.supplierFileUrl || null,
         notes: formData.notes || null,
         weddingDate: formData.weddingDate || null,
       });
@@ -377,13 +407,43 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmationFileUrl">Bekræftelses Fil URL</Label>
-              <Input
-                id="confirmationFileUrl"
-                placeholder="bekræftelser/{id}.pdf"
-                value={formData.confirmationFileUrl}
-                onChange={(e) => handleChange('confirmationFileUrl', e.target.value)}
-              />
+              <Label htmlFor="supplierFileUrl">Leverandør Fil URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="supplierFileUrl"
+                  placeholder="leverandør/{id}.pdf eller upload fil"
+                  value={formData.supplierFileUrl}
+                  onChange={(e) => handleChange('supplierFileUrl', e.target.value)}
+                  disabled={uploadingSupplier}
+                />
+                <div className="relative">
+                  <input
+                    ref={supplierFileInputRef}
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleSupplierFileUpload}
+                    className="hidden"
+                    disabled={uploadingSupplier || saving}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => supplierFileInputRef.current?.click()}
+                    disabled={uploadingSupplier || saving}
+                    className="h-9"
+                  >
+                    {uploadingSupplier ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              {uploadingSupplier && (
+                <p className="text-xs text-blue-600">Uploader Leverandør PDF...</p>
+              )}
             </div>
           </div>
 

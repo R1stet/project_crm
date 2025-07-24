@@ -9,12 +9,15 @@ import { dbRowToCustomer, customerToDbRow } from '@/types/customer';
 export function useCustomers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /* ---------- fetch ---------- */
   const fetchCustomers = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -85,12 +88,14 @@ export function useCustomers() {
   /* ---------- search ---------- */
   const searchCustomers = async (query: string) => {
     try {
-      setLoading(true);
+      setSearching(true);
+      setError(null);
+      
       const { data, error } = await supabase
         .from('customers')
         .select('*')
         .or(
-          `name.ilike.%${query}%,email.ilike.%${query}%,dress.ilike.%${query}%,maker.ilike.%${query}%,notes.ilike.%${query}%`
+          `name.ilike.%${query}%,email.ilike.%${query}%,maker.ilike.%${query}%,notes.ilike.%${query}%`
         )
         .order('created_at', { ascending: false });
 
@@ -100,7 +105,7 @@ export function useCustomers() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
     } finally {
-      setLoading(false);
+      setSearching(false);
     }
   };
 
@@ -112,6 +117,7 @@ export function useCustomers() {
   return {
     customers,
     loading,
+    searching,
     error,
     addCustomer,
     updateCustomer,
