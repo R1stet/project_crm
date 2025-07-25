@@ -121,14 +121,14 @@ Team Fuhrmanns`)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden mx-auto p-6 sm:p-8">
+      <DialogContent className="w-[95vw] max-w-6xl max-h-[92vh] overflow-y-auto overflow-x-hidden mx-auto p-6 sm:p-8">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-6">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex-1 min-w-0 pr-4">
               <DialogTitle className="text-2xl">{customer.name}</DialogTitle>
               <DialogDescription>Kundedetaljer</DialogDescription>
             </div>
-            <div className="flex items-center space-x-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-wrap justify-end flex-shrink-0">
               {customer.status.toLowerCase() === "kjole ankommet" && (
                 <Button
                   variant="default"
@@ -149,8 +149,7 @@ Team Fuhrmanns`)
                   className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
                 >
                   <Calendar className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Skrædderpåmindelse</span>
-                  <span className="sm:hidden">Skrædder</span>
+                  <span>Skrædder</span>
                 </Button>
               )}
               <Button
