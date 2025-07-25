@@ -5,13 +5,7 @@ export type Status =
   | 'Kjole ankommet'
   | 'Kjole afhentet';
 
-export type DressType =
-  | 'A-line'
-  | 'Ball gown'
-  | 'Mermaid'
-  | 'Sheath'
-  | 'Tea-length'
-  | null;
+export type DressType = string | null;
 
 export type InvoiceStatus = 'Skal sendes' | 'Sendt' | 'Delvist betalt' | 'Betalt';
 
