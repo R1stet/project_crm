@@ -47,7 +47,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
     }, 500) // Increased to 500ms to let client-side filtering work first
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery])
+  }, [searchQuery, searchCustomers, refetch])
 
   const filteredAndSortedCustomers = useMemo(() => {
     let filtered = [...allCustomers]

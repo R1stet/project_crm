@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, X, Mail, Calendar } from "lucide-react"
+import { Edit, Trash2, Mail, Calendar } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,

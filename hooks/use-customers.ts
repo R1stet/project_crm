@@ -1,7 +1,7 @@
 // /hooks/use-customers.ts
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Customer } from '@/types/customer';
 import { dbRowToCustomer, customerToDbRow } from '@/types/customer';
@@ -13,7 +13,7 @@ export function useCustomers() {
   const [error, setError] = useState<string | null>(null);
 
   /* ---------- fetch ---------- */
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -28,7 +28,7 @@ export function useCustomers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /* ---------- add ---------- */
   const addCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'dateAdded'>) => {
@@ -86,7 +86,7 @@ export function useCustomers() {
   };
 
   /* ---------- search ---------- */
-  const searchCustomers = async (query: string) => {
+  const searchCustomers = useCallback(async (query: string) => {
     try {
       setSearching(true);
       setError(null);
@@ -107,7 +107,7 @@ export function useCustomers() {
     } finally {
       setSearching(false);
     }
-  };
+  }, []);
 
   /* ---------- init ---------- */
   useEffect(() => {
