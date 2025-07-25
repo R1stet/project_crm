@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, X, Mail } from "lucide-react"
+import { Edit, Trash2, X, Mail, Calendar } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +61,18 @@ export function CustomerDetailsModal({
     }
   }
 
+  const isWithin8WeeksOfWedding = () => {
+    if (!customer.weddingDate) return false
+    
+    const weddingDate = new Date(customer.weddingDate)
+    const today = new Date()
+    const eightWeeksFromNow = new Date()
+    eightWeeksFromNow.setDate(today.getDate() + (8 * 7))
+    
+    // Show reminder button if wedding is within 8 weeks
+    return weddingDate <= eightWeeksFromNow && weddingDate > today
+  }
+
   const handleEmailReceipt = () => {
     const subject = encodeURIComponent(`Din brudekjole fra Fuhrmanns er klar til afhentning - ${customer.name}`)
     const body = encodeURIComponent(`Kære ${customer.name},
@@ -73,6 +85,32 @@ Vi har den store glæde at kunne meddele dig, at din smukke brudekjole nu er kla
 - Kontakt: Ring til os for at aftale tidspunkt
 
 Vi ser frem til at se dig snart!
+
+Med venlig hilsen,
+Team Fuhrmanns`)
+
+    const mailtoLink = `mailto:${customer.email}?subject=${subject}&body=${body}`
+    window.location.href = mailtoLink
+  }
+
+  const handleTailorReminder = () => {
+    const weddingDateFormatted = customer.weddingDate ? formatDate(customer.weddingDate) : "din bryllupsdag"
+    const subject = encodeURIComponent(`Påmindelse fra Fuhrmanns: Book skræddertid til din brudekjole - ${customer.name}`)
+    const body = encodeURIComponent(`Kære ${customer.name},
+
+Vi håber, at du glæder dig til din store dag den ${weddingDateFormatted}! 
+
+Da dit bryllup nærmer sig, vil vi gerne minde dig om at booke en tid til de sidste tilpasninger af din brudekjole hos en skrædder.
+
+📅 Vigtige oplysninger:
+- Vi anbefaler at booke skræddertid ca. 6-8 uger før brylluppet
+- Ring til os for at aftale en tid der passer dig
+
+☎️ Book din tid:
+- Kontakt os på telefon eller mail
+- Vi har fleksible tider tilgængelige
+
+Vi ser frem til at se dig og sikre at din kjole sidder perfekt til den store dag!
 
 Med venlig hilsen,
 Team Fuhrmanns`)
@@ -100,6 +138,17 @@ Team Fuhrmanns`)
                 >
                   <Mail className="h-4 w-4 mr-2" />
                   Send Kvittering
+                </Button>
+              )}
+              {isWithin8WeeksOfWedding() && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleTailorReminder}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Skrædderpåmindelse
                 </Button>
               )}
               <Button
