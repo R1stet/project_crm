@@ -121,7 +121,7 @@ Team Fuhrmanns`)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] sm:w-[95vw] lg:w-[92vw] xl:w-[90vw] max-w-[1800px] max-h-[92vh] overflow-y-auto mx-auto p-6 sm:p-8">
+      <DialogContent className="w-[95vw] max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden mx-auto p-6 sm:p-8">
         <DialogHeader>
           <div className="flex items-center justify-between gap-6">
             <div>
@@ -182,7 +182,7 @@ Team Fuhrmanns`)
           </div>
         </DialogHeader>
 
-        <div className="space-y-8">
+        <div className="space-y-8 overflow-x-hidden">
           {/* Contact Information */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Kontaktoplysninger</h3>
