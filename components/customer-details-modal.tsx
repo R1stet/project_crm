@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, X } from "lucide-react"
+import { Edit, Trash2, X, Mail } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +61,26 @@ export function CustomerDetailsModal({
     }
   }
 
+  const handleEmailReceipt = () => {
+    const subject = encodeURIComponent(`Din brudekjole fra Fuhrmanns er klar til afhentning - ${customer.name}`)
+    const body = encodeURIComponent(`Kære ${customer.name},
+
+Vi har den store glæde at kunne meddele dig, at din smukke brudekjole nu er klar til afhentning!
+
+📍 Afhentningsoplysninger:
+- Dato: Efter aftale
+- Sted: Vores butik
+- Kontakt: Ring til os for at aftale tidspunkt
+
+Vi ser frem til at se dig snart!
+
+Med venlig hilsen,
+Team Fuhrmanns`)
+
+    const mailtoLink = `mailto:${customer.email}?subject=${subject}&body=${body}`
+    window.location.href = mailtoLink
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -71,6 +91,17 @@ export function CustomerDetailsModal({
               <DialogDescription>Kundedetaljer</DialogDescription>
             </div>
             <div className="flex items-center space-x-2">
+              {customer.status.toLowerCase() === "kjole ankommet" && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleEmailReceipt}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send Kvittering
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
