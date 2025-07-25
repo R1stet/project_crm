@@ -121,14 +121,14 @@ Team Fuhrmanns`)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-[700px] max-h-[90vh] overflow-y-auto mx-auto">
+      <DialogContent className="w-[95vw] sm:w-[90vw] lg:w-[85vw] max-w-[1400px] max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-2xl">{customer.name}</DialogTitle>
               <DialogDescription>Kundedetaljer</DialogDescription>
             </div>
-            <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap gap-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               {customer.status.toLowerCase() === "kjole ankommet" && (
                 <Button
                   variant="default"
