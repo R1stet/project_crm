@@ -213,16 +213,70 @@ export function CustomerTable({
           <TableHeader>
             <TableRow>
               <SortableHeader field="name">Navn</SortableHeader>
-              <SortableHeader field="weddingDate">Bryllupsdato</SortableHeader>
-              <SortableHeader field="email">Email</SortableHeader>
-              <SortableHeader field="phoneNumber">Telefon</SortableHeader>
-              <SortableHeader field="salesperson">Sælger</SortableHeader>
+              <TableHead className="hidden sm:table-cell cursor-pointer select-none text-center" onClick={() => onSort("weddingDate")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Bryllupsdato</span>
+                  {sortField === "weddingDate" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden md:table-cell cursor-pointer select-none text-center" onClick={() => onSort("email")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Email</span>
+                  {sortField === "email" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden lg:table-cell cursor-pointer select-none text-center" onClick={() => onSort("phoneNumber")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Telefon</span>
+                  {sortField === "phoneNumber" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden lg:table-cell cursor-pointer select-none text-center" onClick={() => onSort("salesperson")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Sælger</span>
+                  {sortField === "salesperson" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
               <SortableHeader field="status">Status</SortableHeader>
-              <SortableHeader field="dress">Brudekjoler</SortableHeader>
-              <SortableHeader field="maker">Leverandør</SortableHeader>
-              <SortableHeader field="skrædder">Skrædder</SortableHeader>
-              <SortableHeader field="invoiceStatus">Faktura</SortableHeader>
-              <SortableHeader field="createdAt">Oprettet</SortableHeader>
+              <TableHead className="hidden xl:table-cell cursor-pointer select-none text-center" onClick={() => onSort("dress")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Brudekjoler</span>
+                  {sortField === "dress" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden xl:table-cell cursor-pointer select-none text-center" onClick={() => onSort("maker")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Leverandør</span>
+                  {sortField === "maker" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden xl:table-cell cursor-pointer select-none text-center" onClick={() => onSort("skrædder")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Skrædder</span>
+                  {sortField === "skrædder" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden md:table-cell cursor-pointer select-none text-center" onClick={() => onSort("invoiceStatus")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Faktura</span>
+                  {sortField === "invoiceStatus" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
+              <TableHead className="hidden 2xl:table-cell cursor-pointer select-none text-center" onClick={() => onSort("createdAt")}>
+                <div className="flex items-center justify-center space-x-1">
+                  <span className="font-bold">Oprettet</span>
+                  {sortField === "createdAt" &&
+                    (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -232,23 +286,31 @@ export function CustomerTable({
                 className="hover:bg-gray-50 cursor-pointer h-16"
                 onClick={() => onViewCustomer(customer)}
               >
-                <TableCell className="font-medium py-4">{customer.name}</TableCell>
-                <TableCell className="font-medium text-blue-600 py-4">{customer.weddingDate}</TableCell>
-                <TableCell className="py-4">{customer.email}</TableCell>
-                <TableCell className="hidden sm:table-cell py-4">{customer.phoneNumber}</TableCell>
-                <TableCell className="hidden md:table-cell py-4">{customer.salesperson}</TableCell>
-                <TableCell className="py-4">
-                  <Badge variant={getStatusBadgeVariant(customer.status)}>{customer.status}</Badge>
+                <TableCell className="font-medium py-4">
+                  <div className="min-w-0">
+                    <div className="font-medium">{customer.name}</div>
+                    <div className="text-sm text-gray-500 sm:hidden">{customer.email}</div>
+                  </div>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell py-4">{customer.dress}</TableCell>
-                <TableCell className="hidden lg:table-cell py-4">{customer.maker}</TableCell>
-                <TableCell className="hidden lg:table-cell py-4">{customer.skrædder}</TableCell>
+                <TableCell className="font-medium text-blue-600 py-4 hidden sm:table-cell">{customer.weddingDate}</TableCell>
+                <TableCell className="py-4 hidden md:table-cell">{customer.email}</TableCell>
+                <TableCell className="hidden lg:table-cell py-4">{customer.phoneNumber}</TableCell>
+                <TableCell className="hidden lg:table-cell py-4">{customer.salesperson}</TableCell>
                 <TableCell className="py-4">
-                  <Badge variant={customer.invoiceStatus === "Betalt" ? "default" : "secondary"}>
+                  <Badge variant={getStatusBadgeVariant(customer.status)} className="text-xs">
+                    {customer.status}
+                  </Badge>
+                  <div className="text-xs text-blue-600 sm:hidden mt-1">{customer.weddingDate}</div>
+                </TableCell>
+                <TableCell className="hidden xl:table-cell py-4">{customer.dress}</TableCell>
+                <TableCell className="hidden xl:table-cell py-4">{customer.maker}</TableCell>
+                <TableCell className="hidden xl:table-cell py-4">{customer.skrædder}</TableCell>
+                <TableCell className="py-4 hidden md:table-cell">
+                  <Badge variant={customer.invoiceStatus === "Betalt" ? "default" : "secondary"} className="text-xs">
                     {customer.invoiceStatus}
                   </Badge>
                 </TableCell>
-                <TableCell className="hidden xl:table-cell py-4 text-sm text-gray-500">
+                <TableCell className="hidden 2xl:table-cell py-4 text-sm text-gray-500">
                   {formatDate(customer.createdAt)}
                 </TableCell>
               </TableRow>

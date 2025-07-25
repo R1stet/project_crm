@@ -121,23 +121,24 @@ Team Fuhrmanns`)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-[700px] max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-2xl">{customer.name}</DialogTitle>
               <DialogDescription>Kundedetaljer</DialogDescription>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap gap-2">
               {customer.status.toLowerCase() === "kjole ankommet" && (
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleEmailReceipt}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                 >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Send Kvittering
+                  <Mail className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Send Kvittering</span>
+                  <span className="sm:hidden">Kvittering</span>
                 </Button>
               )}
               {isWithin8WeeksOfWedding() && (
@@ -145,19 +146,22 @@ Team Fuhrmanns`)
                   variant="default"
                   size="sm"
                   onClick={handleTailorReminder}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
                 >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Skrædderpåmindelse
+                  <Calendar className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Skrædderpåmindelse</span>
+                  <span className="sm:hidden">Skrædder</span>
                 </Button>
               )}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onEdit(customer)}
+                className="text-xs sm:text-sm"
               >
-                <Edit className="h-4 w-4 mr-2" />
-                Rediger
+                <Edit className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Rediger</span>
+                <span className="sm:hidden">Edit</span>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -182,7 +186,7 @@ Team Fuhrmanns`)
           {/* Contact Information */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Kontaktoplysninger</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Bryllupsdato</label>
                 <p className="text-sm font-semibold text-blue-600">{formatDate(customer.weddingDate)}</p>
@@ -201,7 +205,7 @@ Team Fuhrmanns`)
           {/* Order Information */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Ordreoplysninger</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Sælger</label>
                 <p className="text-sm">{customer.salesperson || "Ikke angivet"}</p>
@@ -232,7 +236,7 @@ Team Fuhrmanns`)
           {/* Size Information */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Størrelsesmål</h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Bryst</label>
                 <p className="text-sm">{customer.size.bryst ? `${customer.size.bryst}cm` : "Ikke angivet"}</p>
@@ -331,7 +335,7 @@ Team Fuhrmanns`)
           {/* Metadata */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">System Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <label className="text-sm font-medium text-gray-600">Oprettet af</label>
                 <p className="text-sm">{customer.createdBy}</p>

@@ -211,7 +211,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         searching={searching}
       />
 
-      <main className="max-w-[1800px] mx-auto px-4 py-6">
+      <main className="max-w-[1800px] mx-auto px-2 sm:px-4 py-4 sm:py-6">
         <div className={`bg-white rounded-lg shadow transition-opacity duration-200 ${searching ? 'opacity-75' : 'opacity-100'}`}>
           <CustomerTable
             customers={filteredAndSortedCustomers}
