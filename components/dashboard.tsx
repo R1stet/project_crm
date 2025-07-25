@@ -32,8 +32,8 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [sortField, setSortField] = useState<keyof Customer>("name")
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const [sortField, setSortField] = useState<keyof Customer>("createdAt")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [filters, setFilters] = useState<Record<string, string>>({})
 
   // Handle search with debouncing
@@ -211,7 +211,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         searching={searching}
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="max-w-[1800px] mx-auto px-4 py-6">
         <div className={`bg-white rounded-lg shadow transition-opacity duration-200 ${searching ? 'opacity-75' : 'opacity-100'}`}>
           <CustomerTable
             customers={filteredAndSortedCustomers}

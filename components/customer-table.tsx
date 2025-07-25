@@ -59,6 +59,14 @@ export function CustomerTable({
     }
   }
 
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString("da-DK")
+    } catch {
+      return dateString
+    }
+  }
+
   const SortableHeader = ({ field, children }: { field: keyof Customer; children: React.ReactNode }) => (
     <TableHead className="cursor-pointer select-none text-center" onClick={() => onSort(field)}>
       <div className="flex items-center justify-center space-x-1">
@@ -214,6 +222,7 @@ export function CustomerTable({
               <SortableHeader field="maker">Leverandør</SortableHeader>
               <SortableHeader field="skrædder">Skrædder</SortableHeader>
               <SortableHeader field="invoiceStatus">Faktura</SortableHeader>
+              <SortableHeader field="createdAt">Oprettet</SortableHeader>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -238,6 +247,9 @@ export function CustomerTable({
                   <Badge variant={customer.invoiceStatus === "Betalt" ? "default" : "secondary"}>
                     {customer.invoiceStatus}
                   </Badge>
+                </TableCell>
+                <TableCell className="hidden xl:table-cell py-4 text-sm text-gray-500">
+                  {formatDate(customer.createdAt)}
                 </TableCell>
               </TableRow>
             ))}
