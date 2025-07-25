@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { Customer, DressType, Status, InvoiceStatus } from '@/types/customer';
+import type { Customer, DressType, Status, InvoiceStatus, AccessoryType, Accessory } from '@/types/customer';
 import { uploadInvoice, uploadSupplierPDF } from '@/lib/storage';
 import { Upload, Loader2 } from 'lucide-react';
 
@@ -41,6 +41,7 @@ const statusOptions: Status[] = [
   'Kjole afhentet',
 ];
 const invoiceOptions: InvoiceStatus[] = ['Skal sendes', 'Sendt', 'Delvist betalt', 'Betalt'];
+const accessoryOptions: AccessoryType[] = ['Slør', 'Sko', 'Hårpynt', 'Lingeri', 'Diverse'];
 
 export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerModalProps) {
   const [formData, setFormData] = useState({
@@ -59,6 +60,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       arms: '',
       height: '',
     },
+    accessories: [] as Accessory[],
     invoiceStatus: 'Skal sendes' as InvoiceStatus,
     invoiceFileUrl: '',
     supplierFileUrl: '',
@@ -69,6 +71,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingSupplier, setUploadingSupplier] = useState(false);
+  const [newAccessory, setNewAccessory] = useState({
+    type: null as AccessoryType | null,
+    note: '',
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supplierFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,6 +97,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           arms: customer.size.arms?.toString() ?? '',
           height: customer.size.height?.toString() ?? '',
         },
+        accessories: customer.accessories || [],
         invoiceStatus: customer.invoiceStatus,
         invoiceFileUrl: customer.invoiceFileUrl ?? '',
         supplierFileUrl: customer.supplierFileUrl ?? '',
@@ -115,6 +122,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           arms: '',
           height: '',
         },
+        accessories: [],
         invoiceStatus: 'Skal sendes',
         invoiceFileUrl: '',
         supplierFileUrl: '',
@@ -193,6 +201,28 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     }
   };
 
+  const addAccessory = () => {
+    if (newAccessory.type && newAccessory.note.trim()) {
+      const accessory: Accessory = {
+        id: Date.now().toString(),
+        type: newAccessory.type,
+        note: newAccessory.note.trim(),
+      };
+      setFormData((prev) => ({
+        ...prev,
+        accessories: [...prev.accessories, accessory],
+      }));
+      setNewAccessory({ type: null, note: '' });
+    }
+  };
+
+  const removeAccessory = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      accessories: prev.accessories.filter((acc) => acc.id !== id),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -215,6 +245,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           arms: toNum(formData.size.arms),
           height: toNum(formData.size.height),
         },
+        accessories: formData.accessories,
         invoiceFileUrl: formData.invoiceFileUrl || null,
         supplierFileUrl: formData.supplierFileUrl || null,
         notes: formData.notes || null,
@@ -340,6 +371,73 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                   />
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* accessories */}
+          <div className="space-y-4">
+            <Label className="text-lg font-semibold">Accessories</Label>
+            
+            {/* existing accessories */}
+            {formData.accessories.length > 0 && (
+              <div className="space-y-2">
+                {formData.accessories.map((accessory) => (
+                  <div key={accessory.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                    <div>
+                      <span className="font-medium">{accessory.type}</span>
+                      {accessory.note && <p className="text-sm text-gray-600">{accessory.note}</p>}
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => removeAccessory(accessory.id)}
+                    >
+                      Fjern
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* add new accessory */}
+            <div className="border rounded-md p-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Tilbehør type</Label>
+                  <Select 
+                    value={newAccessory.type || ''} 
+                    onValueChange={(v) => setNewAccessory(prev => ({ ...prev, type: v as AccessoryType }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Vælg tilbehør" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accessoryOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Note</Label>
+                  <Input
+                    value={newAccessory.note}
+                    onChange={(e) => setNewAccessory(prev => ({ ...prev, note: e.target.value }))}
+                    placeholder="Tilføj note..."
+                  />
+                </div>
+              </div>
+              <Button 
+                type="button" 
+                onClick={addAccessory}
+                disabled={!newAccessory.type || !newAccessory.note.trim()}
+                className="w-full"
+              >
+                Tilføj tilbehør
+              </Button>
             </div>
           </div>
 

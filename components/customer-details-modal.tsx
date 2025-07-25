@@ -176,6 +176,27 @@ export function CustomerDetailsModal({
             </div>
           </div>
 
+          {/* Accessories */}
+          {customer.accessories && customer.accessories.length > 0 && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-lg mb-3">Accessories</h3>
+              <div className="space-y-3">
+                {customer.accessories.map((accessory) => (
+                  <div key={accessory.id} className="bg-white p-3 rounded-md border">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="font-medium text-sm">{accessory.type}</span>
+                        {accessory.note && (
+                          <p className="text-sm text-gray-600 mt-1">{accessory.note}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Invoice and Documents */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-lg mb-3">Faktura og Dokumenter</h3>

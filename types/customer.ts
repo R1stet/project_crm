@@ -9,6 +9,14 @@ export type DressType = string | null;
 
 export type InvoiceStatus = 'Skal sendes' | 'Sendt' | 'Delvist betalt' | 'Betalt';
 
+export type AccessoryType = 'Slør' | 'Sko' | 'Hårpynt' | 'Lingeri' | 'Diverse';
+
+export interface Accessory {
+  type: AccessoryType;
+  note: string;
+  id: string;
+}
+
 export interface Size {
   bryst: number | null;
   talje: number | null;
@@ -28,6 +36,7 @@ export interface Customer {
   maker: string | null;
   skrædder: string | null;
   size: Size;
+  accessories: Accessory[];
   invoiceStatus: InvoiceStatus;
   invoiceFileUrl: string | null;
   supplierFileUrl: string | null;
@@ -61,6 +70,7 @@ export function dbRowToCustomer(row: any): Customer {
       arms: toNum(row.size_arms),
       height: toNum(row.size_height),
     },
+    accessories: row.accessories ? JSON.parse(row.accessories) : [],
     invoiceStatus: row.invoice_status,
     invoiceFileUrl: row.invoice_file_url,
     supplierFileUrl: row.supplier_file_url,
@@ -90,6 +100,7 @@ export function customerToDbRow(
     size_hofte: customer.size.hofte,
     size_arms: customer.size.arms,
     size_height: customer.size.height,
+    accessories: JSON.stringify(customer.accessories),
     invoice_status: customer.invoiceStatus,
     invoice_file_url: customer.invoiceFileUrl,
     supplier_file_url: customer.supplierFileUrl,
