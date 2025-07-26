@@ -4,6 +4,7 @@ import { Search, Plus, LogOut, Home, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Logo } from "@/components/logo"
 
 interface HeaderProps {
   currentUser: string
@@ -29,11 +30,7 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Navigation */}
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-gray-900">Brudekjole CRM</h1>
-            <Button variant="ghost" size="sm" className="hidden sm:flex">
-              <Home className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
+            <Logo className="h-8" />
           </div>
 
           {/* Center - Search (hidden on mobile) */}
