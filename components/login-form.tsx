@@ -7,20 +7,35 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { loginSchema, type LoginInput } from "@/lib/validation"
 
 interface LoginFormProps {
-  onLogin: (email: string, password: string) => void
+  onLogin: (email: string, password: string) => Promise<void>
+  isLoading?: boolean
 }
 
-export function LoginForm({ onLogin }: LoginFormProps) {
+export function LoginForm({ onLogin, isLoading = false }: LoginFormProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [errors, setErrors] = useState<Partial<LoginInput>>({})
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email && password) {
-      onLogin(email, password)
+    setErrors({})
+
+    const result = loginSchema.safeParse({ email, password })
+    if (!result.success) {
+      const fieldErrors: Partial<LoginInput> = {}
+      result.error.errors.forEach((error) => {
+        if (error.path[0]) {
+          fieldErrors[error.path[0] as keyof LoginInput] = error.message
+        }
+      })
+      setErrors(fieldErrors)
+      return
     }
+
+    await onLogin(email, password)
   }
 
   return (
@@ -41,7 +56,9 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
+              {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -52,10 +69,12 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
+              {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
         </CardContent>

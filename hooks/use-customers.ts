@@ -5,6 +5,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Customer } from '@/types/customer';
 import { dbRowToCustomer, customerToDbRow } from '@/types/customer';
+import { sanitizeSearchQuery } from '@/lib/validation';
+import { sanitizeError } from '@/lib/error-handler';
 
 export function useCustomers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -24,7 +26,7 @@ export function useCustomers() {
 
       setCustomers(data.map(dbRowToCustomer));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(sanitizeError(err));
     } finally {
       setLoading(false);
     }
@@ -41,8 +43,9 @@ export function useCustomers() {
       setCustomers((prev) => [newCustomer, ...prev]);
       return newCustomer;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add customer');
-      throw err;
+      const errorMessage = sanitizeError(err);
+      setError(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -68,8 +71,9 @@ export function useCustomers() {
       setCustomers((prev) => prev.map((c) => (c.id === id ? updatedCustomer : c)));
       return updatedCustomer;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update customer');
-      throw err;
+      const errorMessage = sanitizeError(err);
+      setError(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -80,8 +84,9 @@ export function useCustomers() {
       if (error) throw error;
       setCustomers((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete customer');
-      throw err;
+      const errorMessage = sanitizeError(err);
+      setError(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -91,11 +96,13 @@ export function useCustomers() {
       setSearching(true);
       setError(null);
       
+      const sanitizedQuery = sanitizeSearchQuery(query);
+      
       const { data, error } = await supabase
         .from('customers')
         .select('*')
         .or(
-          `name.ilike.%${query}%,email.ilike.%${query}%,maker.ilike.%${query}%,notes.ilike.%${query}%`
+          `name.ilike.%${sanitizedQuery}%,email.ilike.%${sanitizedQuery}%,maker.ilike.%${sanitizedQuery}%,notes.ilike.%${sanitizedQuery}%`
         )
         .order('created_at', { ascending: false });
 
@@ -103,7 +110,7 @@ export function useCustomers() {
 
       setCustomers(data.map(dbRowToCustomer));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      setError(sanitizeError(err));
     } finally {
       setSearching(false);
     }
