@@ -175,30 +175,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading customers...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Data</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button onClick={refetch} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Try Again
-          </button>
-        </div>
-      </div>
-    )
-  }
+  // Always render the layout with Header, but show loading/error states in main content
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -212,17 +189,40 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
       />
 
       <main className="max-w-[1800px] mx-auto px-2 sm:px-4 py-4 sm:py-6">
-        <div className={`bg-white rounded-lg shadow transition-opacity duration-200 ${searching ? 'opacity-75' : 'opacity-100'}`}>
-          <CustomerTable
-            customers={filteredAndSortedCustomers}
-            onViewCustomer={handleViewCustomer}
-            onSort={handleSort}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            filters={filters}
-            onFilterChange={setFilters}
-          />
-        </div>
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center space-x-2">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span>Loading customers...</span>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Data</h2>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <button onClick={refetch} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <div className={`bg-white rounded-lg shadow transition-opacity duration-200 ${searching ? 'opacity-75' : 'opacity-100'}`}>
+            <CustomerTable
+              customers={filteredAndSortedCustomers}
+              onViewCustomer={handleViewCustomer}
+              onSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              filters={filters}
+              onFilterChange={setFilters}
+            />
+          </div>
+        )}
       </main>
 
       <CustomerModal
