@@ -46,7 +46,7 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
                 placeholder="Søg kunder, kjoler, producenter..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-10 w-full"
+                className="pl-10 w-full bg-muted/50 border-2 border-border hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
               />
             </div>
           </div>
@@ -74,7 +74,7 @@ export function Header({ currentUser, onLogout, onAddCustomer, searchQuery, onSe
                         placeholder="Søg kunder, kjoler, producenter..."
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 bg-muted/50 border-2 border-border hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                       />
                     </div>
                   </div>
