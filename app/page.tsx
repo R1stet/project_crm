@@ -18,9 +18,15 @@ export default function Home() {
   const sessionManagerRef = useRef<SessionManager | null>(null)
 
   useEffect(() => {
+    // Check if Supabase is available
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
     // Check if user is already logged in
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase!.auth.getUser()
       if (user) {
         setIsAuthenticated(true)
         setCurrentUser(user.email || user.id)
@@ -31,7 +37,7 @@ export default function Home() {
     checkAuth()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase!.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setIsAuthenticated(true)
         setCurrentUser(session.user.email || session.user.id)
@@ -69,6 +75,11 @@ export default function Home() {
   }, [])
 
   const handleLogin = async (email: string, password: string) => {
+    if (!supabase) {
+      setError('Database connection not available')
+      return
+    }
+
     setLoginLoading(true)
     setError(null)
 
@@ -110,7 +121,9 @@ export default function Home() {
       sessionManagerRef.current.destroy()
       sessionManagerRef.current = null
     }
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     setIsAuthenticated(false)
     setCurrentUser("")
     setShowSessionWarning(false)

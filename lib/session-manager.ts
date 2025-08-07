@@ -45,7 +45,9 @@ export class SessionManager {
   }
 
   private async handleTimeout() {
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     this.onTimeout?.()
   }
 

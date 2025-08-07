@@ -14,6 +14,11 @@ export function Logo({ className = "h-8" }: LogoProps) {
 
   useEffect(() => {
     async function fetchLogo() {
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
+
       try {
         // List files in the logo bucket
         const { data: files, error: listError } = await supabase.storage

@@ -16,6 +16,12 @@ export function useCustomers() {
 
   /* ---------- fetch ---------- */
   const fetchCustomers = useCallback(async () => {
+    if (!supabase) {
+      setError('Database connection not available');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -34,6 +40,10 @@ export function useCustomers() {
 
   /* ---------- add ---------- */
   const addCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'dateAdded'>) => {
+    if (!supabase) {
+      throw new Error('Database connection not available');
+    }
+
     try {
       const { data, error } = await supabase.from('customers').insert([customerToDbRow(customerData)]).select().single();
 
@@ -54,6 +64,10 @@ export function useCustomers() {
     id: string,
     customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'dateAdded' | 'createdBy'>
   ) => {
+    if (!supabase) {
+      throw new Error('Database connection not available');
+    }
+
     try {
       const { data, error } = await supabase
         .from('customers')
@@ -79,6 +93,10 @@ export function useCustomers() {
 
   /* ---------- delete ---------- */
   const deleteCustomer = async (id: string) => {
+    if (!supabase) {
+      throw new Error('Database connection not available');
+    }
+
     try {
       const { error } = await supabase.from('customers').delete().eq('id', id);
       if (error) throw error;
@@ -92,6 +110,12 @@ export function useCustomers() {
 
   /* ---------- search ---------- */
   const searchCustomers = useCallback(async (query: string) => {
+    if (!supabase) {
+      setError('Database connection not available');
+      setSearching(false);
+      return;
+    }
+
     try {
       setSearching(true);
       setError(null);

@@ -1,6 +1,10 @@
 import { supabase } from './supabase'
 
 export async function uploadInvoice(file: File, customerId?: string): Promise<string> {
+  if (!supabase) {
+    throw new Error('Database connection not available')
+  }
+
   try {
     // Generate a unique filename
     const fileExt = file.name.split('.').pop()
@@ -19,7 +23,7 @@ export async function uploadInvoice(file: File, customerId?: string): Promise<st
     if (error) throw error
 
     // Get the public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabase!.storage
       .from('invoices')
       .getPublicUrl(data.path)
 
@@ -31,6 +35,10 @@ export async function uploadInvoice(file: File, customerId?: string): Promise<st
 }
 
 export async function deleteInvoice(fileName: string): Promise<void> {
+  if (!supabase) {
+    throw new Error('Database connection not available')
+  }
+
   try {
     const { error } = await supabase.storage
       .from('invoices')
@@ -44,6 +52,10 @@ export async function deleteInvoice(fileName: string): Promise<void> {
 }
 
 export async function uploadSupplierPDF(file: File, customerId?: string): Promise<string> {
+  if (!supabase) {
+    throw new Error('Database connection not available')
+  }
+
   try {
     // Generate a unique filename
     const fileExt = file.name.split('.').pop()
@@ -62,7 +74,7 @@ export async function uploadSupplierPDF(file: File, customerId?: string): Promis
     if (error) throw error
 
     // Get the public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabase!.storage
       .from('supplier')
       .getPublicUrl(data.path)
 
@@ -74,6 +86,10 @@ export async function uploadSupplierPDF(file: File, customerId?: string): Promis
 }
 
 export async function deleteSupplierPDF(fileName: string): Promise<void> {
+  if (!supabase) {
+    throw new Error('Database connection not available')
+  }
+
   try {
     const { error } = await supabase.storage
       .from('supplier')
