@@ -26,7 +26,7 @@ export function LoginForm({ onLogin, isLoading = false }: LoginFormProps) {
     const result = loginSchema.safeParse({ email, password })
     if (!result.success) {
       const fieldErrors: Partial<LoginInput> = {}
-      result.error.errors.forEach((error) => {
+      result.error.issues.forEach((error) => {
         if (error.path[0]) {
           fieldErrors[error.path[0] as keyof LoginInput] = error.message
         }

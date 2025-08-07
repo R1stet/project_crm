@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Plus, LogOut, Home, Loader2 } from "lucide-react"
+import { Search, Plus, LogOut, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
