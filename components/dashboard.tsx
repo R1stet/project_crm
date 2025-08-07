@@ -160,6 +160,9 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   const handleDeleteCustomer = async (id: string) => {
     try {
       await deleteCustomer(id)
+      // Close the details modal after successful deletion
+      setIsDetailsModalOpen(false)
+      setSelectedCustomer(null)
     } catch (err) {
       console.error("Failed to delete customer:", err)
       // You could add a toast notification here
