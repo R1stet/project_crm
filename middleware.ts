@@ -18,11 +18,13 @@ export function middleware(request: NextRequest) {
     "default-src 'self'",
     isDev 
       ? "script-src 'self' 'unsafe-eval' 'unsafe-inline'" 
-      : "script-src 'self' 'unsafe-inline'",
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co" + (isDev ? " ws://localhost:* http://localhost:*" : ""),
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.vercel.app" + (isDev ? " ws://localhost:* http://localhost:*" : ""),
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
