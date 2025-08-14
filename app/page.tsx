@@ -137,7 +137,7 @@ export default function Home() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>
   }
 
   if (!isAuthenticated) {

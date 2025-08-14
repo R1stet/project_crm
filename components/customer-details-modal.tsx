@@ -297,28 +297,56 @@ Team Fuhrmanns`)
             {/* Document Links */}
             <div className="mt-4">
               <label className="text-sm font-medium text-gray-600 block mb-2">Dokumenter</label>
-              <div className="flex space-x-2">
-                {customer.invoiceFileUrl && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(customer.invoiceFileUrl!, "_blank")}
-                  >
-                    📄 Vis Faktura
-                  </Button>
-                )}
-                {customer.supplierFileUrl && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(customer.supplierFileUrl!, "_blank")}
-                  >
-                    📦 Vis Leverandør
-                  </Button>
-                )}
-                {!customer.invoiceFileUrl && !customer.supplierFileUrl && (
-                  <p className="text-sm text-gray-500">Ingen dokumenter tilgængelige</p>
-                )}
+              <div className="space-y-3">
+                <div className="flex space-x-2">
+                  {customer.invoiceFileUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(customer.invoiceFileUrl!, "_blank")}
+                    >
+                      📄 Vis Faktura
+                    </Button>
+                  )}
+                  {customer.supplierFileUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(customer.supplierFileUrl!, "_blank")}
+                    >
+                      📦 Vis Leverandør
+                    </Button>
+                  )}
+                  {!customer.invoiceFileUrl && !customer.supplierFileUrl && (
+                    <p className="text-sm text-gray-500">Ingen dokumenter tilgængelige</p>
+                  )}
+                </div>
+                
+                {/* Image Previews */}
+                <div className="grid grid-cols-2 gap-2">
+                  {customer.invoiceFileUrl && customer.invoiceFileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i) && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-600">Faktura</p>
+                      <img 
+                        src={customer.invoiceFileUrl} 
+                        alt="Faktura preview" 
+                        className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80"
+                        onClick={() => window.open(customer.invoiceFileUrl!, "_blank")}
+                      />
+                    </div>
+                  )}
+                  {customer.supplierFileUrl && customer.supplierFileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i) && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-600">Leverandør</p>
+                      <img 
+                        src={customer.supplierFileUrl} 
+                        alt="Leverandør preview" 
+                        className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80"
+                        onClick={() => window.open(customer.supplierFileUrl!, "_blank")}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

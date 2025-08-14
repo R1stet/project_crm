@@ -65,7 +65,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #ffffff;
     
     /* Primary colors - high contrast blue for dark mode */
     --primary: #3b82f6;
@@ -90,7 +90,7 @@
     
     /* Muted colors for dark mode */
     --muted: #1f2937;
-    --muted-foreground: #9ca3af;
+    --muted-foreground: #d1d5db;
     
     /* Card colors for dark mode */
     --card: #111827;

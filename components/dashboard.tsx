@@ -75,6 +75,14 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
             return month === value
           }
           
+          // Special handling for wedding year filter
+          if (field === "weddingYear") {
+            if (!customer.weddingDate) return false
+            const weddingDate = new Date(customer.weddingDate)
+            const year = weddingDate.getFullYear().toString()
+            return year === value
+          }
+          
           // Special handling for status filter (exact match)
           if (field === "status") {
             return customer.status === value
@@ -181,7 +189,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   // Always render the layout with Header, but show loading/error states in main content
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header
         currentUser={currentUser}
         onLogout={onLogout}
@@ -205,7 +213,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Data</h2>
-              <p className="text-gray-600 mb-4">{error}</p>
+              <p className="text-muted-foreground mb-4">{error}</p>
               <button onClick={refetch} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                 Try Again
               </button>

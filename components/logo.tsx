@@ -54,14 +54,14 @@ export function Logo({ className = "h-8" }: LogoProps) {
 
   if (loading) {
     return (
-      <div className={`${className} bg-gray-200 animate-pulse rounded`} />
+      <div className={`${className} bg-muted animate-pulse rounded`} />
     )
   }
 
   if (!logoUrl) {
     // Fallback to text if logo can't be loaded
     return (
-      <h1 className="text-xl font-bold text-gray-900">Brudekjole CRM</h1>
+      <h1 className="text-xl font-bold text-foreground">Brudekjole CRM</h1>
     )
   }
 

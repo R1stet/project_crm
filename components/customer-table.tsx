@@ -113,6 +113,7 @@ export function CustomerTable({
                     ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"][parseInt(value) - 1] :
                     value
                   const fieldName = field === "weddingMonth" ? "Bryllupsmåned" :
+                                   field === "weddingYear" ? "Bryllupsår" :
                                    field === "status" ? "Status" :
                                    field === "dress" ? "Brudekjoler" :
                                    field === "maker" ? "Leverandør" :
@@ -133,7 +134,7 @@ export function CustomerTable({
               </div>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Bryllupsmåned</label>
               <select
@@ -154,6 +155,24 @@ export function CustomerTable({
                 <option value="10">Oktober</option>
                 <option value="11">November</option>
                 <option value="12">December</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Bryllupsår</label>
+              <select
+                className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={filters.weddingYear || ""}
+                onChange={(e) => handleFilterChange("weddingYear", e.target.value)}
+              >
+                <option value="">Alle år</option>
+                {Array.from({ length: 10 }, (_, i) => {
+                  const year = new Date().getFullYear() + i - 2
+                  return (
+                    <option key={year} value={year.toString()}>
+                      {year}
+                    </option>
+                  )
+                })}
               </select>
             </div>
             <div>
