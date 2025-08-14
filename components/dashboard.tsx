@@ -75,6 +75,14 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
             return month === value
           }
           
+          // Special handling for wedding year filter
+          if (field === "weddingYear") {
+            if (!customer.weddingDate) return false
+            const weddingDate = new Date(customer.weddingDate)
+            const year = weddingDate.getFullYear().toString()
+            return year === value
+          }
+          
           // Special handling for status filter (exact match)
           if (field === "status") {
             return customer.status === value
