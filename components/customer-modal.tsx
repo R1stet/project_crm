@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select';
 import type { Customer, DressType, Status, InvoiceStatus, AccessoryType, Accessory } from '@/types/customer';
 import { uploadInvoice, uploadSupplierFile, captureImageFromCamera } from '@/lib/storage';
-import { Upload, Loader2, Camera } from 'lucide-react';
+import { Upload, Loader2, Camera, X } from 'lucide-react';
 
 interface CustomerModalProps {
   isOpen: boolean;
@@ -152,7 +152,9 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handleFileUpload called');
     const file = e.target.files?.[0];
+    console.log('Selected file:', file);
     if (!file) return;
 
     // Validate file size (10MB max)
@@ -161,9 +163,11 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       return;
     }
 
+    console.log('Starting upload...');
     setUploading(true);
     try {
       const url = await uploadInvoice(file, customer?.id);
+      console.log('Upload successful, URL:', url);
       handleChange('invoiceFileUrl', url);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -175,42 +179,66 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
   };
 
   const handleCameraCapture = async (isInvoice: boolean = true) => {
+    console.log('handleCameraCapture called, isInvoice:', isInvoice);
+    if (isInvoice) {
+      setUploading(true);
+    } else {
+      setUploadingSupplier(true);
+    }
+
     try {
       const file = await captureImageFromCamera();
-      if (!file) return;
+      console.log('Camera capture result:', file);
+      if (!file) {
+        console.log('User cancelled camera capture');
+        // User cancelled - reset loading state
+        if (isInvoice) {
+          setUploading(false);
+        } else {
+          setUploadingSupplier(false);
+        }
+        return;
+      }
 
       // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
         alert('Filstørrelse skal være mindre end 10MB');
+        if (isInvoice) {
+          setUploading(false);
+        } else {
+          setUploadingSupplier(false);
+        }
         return;
       }
 
+      console.log('Uploading file from camera...');
       if (isInvoice) {
-        setUploading(true);
-        try {
-          const url = await uploadInvoice(file, customer?.id);
-          handleChange('invoiceFileUrl', url);
-        } finally {
-          setUploading(false);
-        }
+        const url = await uploadInvoice(file, customer?.id);
+        console.log('Invoice upload successful, URL:', url);
+        handleChange('invoiceFileUrl', url);
       } else {
-        setUploadingSupplier(true);
-        try {
-          const url = await uploadSupplierFile(file, customer?.id);
-          handleChange('supplierFileUrl', url);
-        } finally {
-          setUploadingSupplier(false);
-        }
+        const url = await uploadSupplierFile(file, customer?.id);
+        console.log('Supplier upload successful, URL:', url);
+        handleChange('supplierFileUrl', url);
       }
     } catch (error) {
       console.error('Camera capture failed:', error);
       const message = error instanceof Error ? error.message : 'Kamera fejlede. Prøv igen.';
       alert(message);
+    } finally {
+      // Always reset loading state
+      if (isInvoice) {
+        setUploading(false);
+      } else {
+        setUploadingSupplier(false);
+      }
     }
   };
 
   const handleSupplierFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handleSupplierFileUpload called');
     const file = e.target.files?.[0];
+    console.log('Selected supplier file:', file);
     if (!file) return;
 
     // Validate file size (10MB max)
@@ -219,9 +247,11 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       return;
     }
 
+    console.log('Starting supplier upload...');
     setUploadingSupplier(true);
     try {
       const url = await uploadSupplierFile(file, customer?.id);
+      console.log('Supplier upload successful, URL:', url);
       handleChange('supplierFileUrl', url);
     } catch (error) {
       console.error('Supplier upload failed:', error);
@@ -252,6 +282,16 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       ...prev,
       accessories: prev.accessories.filter((acc) => acc.id !== id),
     }));
+  };
+
+  const removeInvoiceImage = () => {
+    console.log('Removing invoice image...');
+    handleChange('invoiceFileUrl', '');
+  };
+
+  const removeSupplierImage = () => {
+    console.log('Removing supplier image...');
+    handleChange('supplierFileUrl', '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -514,7 +554,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                      console.log('Upload button clicked');
+                      fileInputRef.current?.click();
+                    }}
                     disabled={uploading || saving}
                     className="h-9"
                     title="Vælg fil"
@@ -529,7 +572,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => handleCameraCapture(true)}
+                    onClick={() => {
+                      console.log('Camera button clicked');
+                      handleCameraCapture(true);
+                    }}
                     disabled={uploading || saving}
                     className="h-9"
                     title="Tag billede"
@@ -543,11 +589,23 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               )}
               {formData.invoiceFileUrl && isImageUrl(formData.invoiceFileUrl) && (
                 <div className="mt-2">
-                  <img 
-                    src={formData.invoiceFileUrl} 
-                    alt="Faktura preview" 
-                    className="w-32 h-32 object-cover rounded border"
-                  />
+                  <div className="relative inline-block">
+                    <img 
+                      src={formData.invoiceFileUrl} 
+                      alt="Faktura preview" 
+                      className="w-32 h-32 object-cover rounded border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={removeInvoiceImage}
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 z-10 bg-red-500 hover:bg-red-600 border border-white"
+                      title="Slet billede"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -574,7 +632,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => supplierFileInputRef.current?.click()}
+                    onClick={() => {
+                      console.log('Supplier upload button clicked');
+                      supplierFileInputRef.current?.click();
+                    }}
                     disabled={uploadingSupplier || saving}
                     className="h-9"
                     title="Vælg fil"
@@ -589,7 +650,10 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => handleCameraCapture(false)}
+                    onClick={() => {
+                      console.log('Supplier camera button clicked');
+                      handleCameraCapture(false);
+                    }}
                     disabled={uploadingSupplier || saving}
                     className="h-9"
                     title="Tag billede"
@@ -603,11 +667,23 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               )}
               {formData.supplierFileUrl && isImageUrl(formData.supplierFileUrl) && (
                 <div className="mt-2">
-                  <img 
-                    src={formData.supplierFileUrl} 
-                    alt="Leverandør preview" 
-                    className="w-32 h-32 object-cover rounded border"
-                  />
+                  <div className="relative inline-block">
+                    <img 
+                      src={formData.supplierFileUrl} 
+                      alt="Leverandør preview" 
+                      className="w-32 h-32 object-cover rounded border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={removeSupplierImage}
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 z-10 bg-red-500 hover:bg-red-600 border border-white"
+                      title="Slet billede"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
