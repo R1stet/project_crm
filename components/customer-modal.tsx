@@ -22,8 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { Customer, DressType, Status, InvoiceStatus, AccessoryType, Accessory } from '@/types/customer';
-import { uploadInvoice, uploadSupplierPDF } from '@/lib/storage';
-import { Upload, Loader2 } from 'lucide-react';
+import { uploadInvoice, uploadSupplierFile, captureImageFromCamera } from '@/lib/storage';
+import { Upload, Loader2, Camera } from 'lucide-react';
 
 interface CustomerModalProps {
   isOpen: boolean;
@@ -77,6 +77,12 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supplierFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Utility function to check if URL is an image
+  const isImageUrl = (url: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']
+    return imageExtensions.some(ext => url.toLowerCase().includes(ext))
+  }
 
   /* ---------- sync incoming customer ---------- */
   useEffect(() => {
@@ -149,12 +155,6 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Vælg venligst en PDF fil');
-      return;
-    }
-
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
       alert('Filstørrelse skal være mindre end 10MB');
@@ -167,21 +167,51 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
       handleChange('invoiceFileUrl', url);
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Upload fejlede. Prøv igen.');
+      const message = error instanceof Error ? error.message : 'Upload fejlede. Prøv igen.';
+      alert(message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleCameraCapture = async (isInvoice: boolean = true) => {
+    try {
+      const file = await captureImageFromCamera();
+      if (!file) return;
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Filstørrelse skal være mindre end 10MB');
+        return;
+      }
+
+      if (isInvoice) {
+        setUploading(true);
+        try {
+          const url = await uploadInvoice(file, customer?.id);
+          handleChange('invoiceFileUrl', url);
+        } finally {
+          setUploading(false);
+        }
+      } else {
+        setUploadingSupplier(true);
+        try {
+          const url = await uploadSupplierFile(file, customer?.id);
+          handleChange('supplierFileUrl', url);
+        } finally {
+          setUploadingSupplier(false);
+        }
+      }
+    } catch (error) {
+      console.error('Camera capture failed:', error);
+      const message = error instanceof Error ? error.message : 'Kamera fejlede. Prøv igen.';
+      alert(message);
     }
   };
 
   const handleSupplierFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Vælg venligst en PDF fil');
-      return;
-    }
 
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
@@ -191,11 +221,12 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
 
     setUploadingSupplier(true);
     try {
-      const url = await uploadSupplierPDF(file, customer?.id);
+      const url = await uploadSupplierFile(file, customer?.id);
       handleChange('supplierFileUrl', url);
     } catch (error) {
       console.error('Supplier upload failed:', error);
-      alert('Upload fejlede. Prøv igen.');
+      const message = error instanceof Error ? error.message : 'Upload fejlede. Prøv igen.';
+      alert(message);
     } finally {
       setUploadingSupplier(false);
     }
@@ -461,20 +492,20 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
           {/* file URLs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="invoiceFileUrl">Faktura Fil URL</Label>
+              <Label htmlFor="invoiceFileUrl">Faktura Fil</Label>
               <div className="flex gap-2">
                 <Input
                   id="invoiceFileUrl"
-                  placeholder="fakturaer/{id}.pdf eller upload fil"
+                  placeholder="Upload PDF eller billede"
                   value={formData.invoiceFileUrl}
                   onChange={(e) => handleChange('invoiceFileUrl', e.target.value)}
                   disabled={uploading}
                 />
-                <div className="relative">
+                <div className="flex gap-1">
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".pdf"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
                     onChange={handleFileUpload}
                     className="hidden"
                     disabled={uploading || saving}
@@ -486,6 +517,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading || saving}
                     className="h-9"
+                    title="Vælg fil"
                   >
                     {uploading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -493,27 +525,47 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                       <Upload className="h-4 w-4" />
                     )}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCameraCapture(true)}
+                    disabled={uploading || saving}
+                    className="h-9"
+                    title="Tag billede"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
               {uploading && (
-                <p className="text-xs text-blue-600">Uploader PDF...</p>
+                <p className="text-xs text-blue-600">Uploader fil...</p>
+              )}
+              {formData.invoiceFileUrl && isImageUrl(formData.invoiceFileUrl) && (
+                <div className="mt-2">
+                  <img 
+                    src={formData.invoiceFileUrl} 
+                    alt="Faktura preview" 
+                    className="w-32 h-32 object-cover rounded border"
+                  />
+                </div>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="supplierFileUrl">Leverandør Fil URL</Label>
+              <Label htmlFor="supplierFileUrl">Leverandør Fil</Label>
               <div className="flex gap-2">
                 <Input
                   id="supplierFileUrl"
-                  placeholder="leverandør/{id}.pdf eller upload fil"
+                  placeholder="Upload PDF eller billede"
                   value={formData.supplierFileUrl}
                   onChange={(e) => handleChange('supplierFileUrl', e.target.value)}
                   disabled={uploadingSupplier}
                 />
-                <div className="relative">
+                <div className="flex gap-1">
                   <input
                     ref={supplierFileInputRef}
                     type="file"
-                    accept=".pdf"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
                     onChange={handleSupplierFileUpload}
                     className="hidden"
                     disabled={uploadingSupplier || saving}
@@ -525,6 +577,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                     onClick={() => supplierFileInputRef.current?.click()}
                     disabled={uploadingSupplier || saving}
                     className="h-9"
+                    title="Vælg fil"
                   >
                     {uploadingSupplier ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -532,10 +585,30 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                       <Upload className="h-4 w-4" />
                     )}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCameraCapture(false)}
+                    disabled={uploadingSupplier || saving}
+                    className="h-9"
+                    title="Tag billede"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
               {uploadingSupplier && (
-                <p className="text-xs text-blue-600">Uploader Leverandør PDF...</p>
+                <p className="text-xs text-blue-600">Uploader fil...</p>
+              )}
+              {formData.supplierFileUrl && isImageUrl(formData.supplierFileUrl) && (
+                <div className="mt-2">
+                  <img 
+                    src={formData.supplierFileUrl} 
+                    alt="Leverandør preview" 
+                    className="w-32 h-32 object-cover rounded border"
+                  />
+                </div>
               )}
             </div>
           </div>
