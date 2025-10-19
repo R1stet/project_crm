@@ -152,16 +152,16 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
       }
       setIsModalOpen(false)
     } catch (err) {
+      // Log full error details server-side for debugging
       console.error("Failed to save customer:", err)
       console.error("Error details:", {
         message: err instanceof Error ? err.message : String(err),
         stack: err instanceof Error ? err.stack : undefined,
         customerData: customerData,
       })
-      // Show more detailed error information
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      const errorDetails = err instanceof Error && err.stack ? err.stack : 'No stack trace'
-      alert(`Failed to save customer:\n\nError: ${errorMessage}\n\nDetails: ${errorDetails}`)
+      // Show user-friendly error message without exposing stack traces
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
+      alert(`Failed to save customer: ${errorMessage}`)
     }
   }
 

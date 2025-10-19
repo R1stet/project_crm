@@ -11,20 +11,21 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-XSS-Protection', '1; mode=block')
   
-  // Content Security Policy - more permissive for development
+  // Content Security Policy - Strengthened for security
   const isDev = process.env.NODE_ENV === 'development'
-  
+
   const csp = [
     "default-src 'self'",
-    isDev 
-      ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' 'wasm-unsafe-eval'" 
-      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' data: blob:",
+    // Allow unsafe-eval only in dev for Next.js HMR, remove unsafe-inline in production
+    isDev
+      ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' 'wasm-unsafe-eval'"
+      : "script-src 'self' 'wasm-unsafe-eval'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.vercel.app",
-    "font-src 'self' https://fonts.gstatic.com https://*.vercel.app data: blob:",
-    "img-src 'self' data: https: blob: https://*.vercel.app",
+    "font-src 'self' https://fonts.gstatic.com https://*.vercel.app data:",
+    "img-src 'self' data: https: blob: https://*.vercel.app https://*.supabase.co",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.vercel.app https://*.googleapis.com" + (isDev ? " ws://localhost:* http://localhost:*" : ""),
-    "worker-src 'self' blob: data:",
-    "child-src 'self' blob: data:",
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
     "manifest-src 'self'",
     "media-src 'self' data: blob:",
     "frame-src 'none'",
@@ -41,10 +42,10 @@ export function middleware(request: NextRequest) {
 
   response.headers.set('Content-Security-Policy', csp.join('; '))
 
-  // Permissions Policy
+  // Permissions Policy - Allow camera for same-origin (needed for camera capture feature)
   response.headers.set(
     'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+    'camera=(self), microphone=(), geolocation=(), interest-cohort=()'
   )
 
   return response
