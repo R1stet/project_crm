@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const response = NextResponse.next()
 
   // Security headers
@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-XSS-Protection', '1; mode=block')
-  
+
   // Content Security Policy - Strengthened for security
   const isDev = process.env.NODE_ENV === 'development'
 
@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
     "form-action 'self'",
     "frame-ancestors 'none'"
   ]
-  
+
   // Only add upgrade-insecure-requests in production
   if (!isDev) {
     csp.push("upgrade-insecure-requests")
