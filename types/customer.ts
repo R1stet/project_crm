@@ -53,6 +53,27 @@ export interface Customer {
 export function dbRowToCustomer(row: any): Customer {
   const toNum = (val: string | null) => (val === null ? null : parseFloat(val));
 
+  // Safely parse accessories JSON with error handling
+  const parseAccessories = (accessoriesData: any): Accessory[] => {
+    if (!accessoriesData) return [];
+
+    try {
+      const parsed = JSON.parse(accessoriesData);
+      // Validate it's an array
+      if (!Array.isArray(parsed)) {
+        console.error('Invalid accessories data: not an array', accessoriesData);
+        return [];
+      }
+      // Validate each accessory has required fields
+      return parsed.filter(acc =>
+        acc && typeof acc === 'object' && acc.type && acc.note && acc.id
+      );
+    } catch (error) {
+      console.error('Failed to parse accessories JSON:', error, accessoriesData);
+      return [];
+    }
+  };
+
   return {
     id: row.id,
     name: row.name,
@@ -70,7 +91,7 @@ export function dbRowToCustomer(row: any): Customer {
       arms: toNum(row.size_arms),
       height: toNum(row.size_height),
     },
-    accessories: row.accessories ? JSON.parse(row.accessories) : [],
+    accessories: parseAccessories(row.accessories),
     invoiceStatus: row.invoice_status,
     invoiceFileUrl: row.invoice_file_url,
     supplierFileUrl: row.supplier_file_url,

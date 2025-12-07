@@ -1,5 +1,28 @@
 import { supabase } from './supabase'
 
+/**
+ * File Storage Security Notes:
+ *
+ * IMPORTANT: This file contains CLIENT-SIDE file validation only.
+ * For production security, you MUST also configure server-side validation:
+ *
+ * 1. Supabase Storage Bucket Configuration:
+ *    - Set file size limits in Supabase Dashboard > Storage > Bucket Settings
+ *    - Recommended: 10MB max file size
+ *    - Configure allowed MIME types: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+ *
+ * 2. Row Level Security (RLS) Policies:
+ *    - Enable RLS on storage buckets
+ *    - Only allow authenticated users to upload
+ *    - Restrict file access based on user permissions
+ *
+ * 3. Additional Recommendations:
+ *    - Implement virus scanning for uploaded files (e.g., ClamAV, VirusTotal API)
+ *    - Use signed URLs with expiration for file access
+ *    - Monitor storage usage to prevent abuse
+ *    - Implement rate limiting on uploads
+ */
+
 // Utility function to convert data URL to File
 export function dataURLtoFile(dataURL: string, filename: string): File {
   const arr = dataURL.split(',')
