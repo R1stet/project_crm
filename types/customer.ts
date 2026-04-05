@@ -42,6 +42,7 @@ export interface Customer {
   supplierFileUrl: string | null;
   notes: string | null;
   weddingDate: string | null;
+  expectedDeliveryDate: string | null;
   dateAdded: string;
   createdBy: string;
   createdAt: string;
@@ -97,6 +98,7 @@ export function dbRowToCustomer(row: any): Customer {
     supplierFileUrl: row.supplier_file_url,
     notes: row.notes,
     weddingDate: row.wedding_date,
+    expectedDeliveryDate: row.expected_delivery_date,
     dateAdded: row.date_added,
     createdBy: row.created_by,
     createdAt: row.created_at,
@@ -127,6 +129,7 @@ export function customerToDbRow(
     supplier_file_url: customer.supplierFileUrl,
     notes: customer.notes,
     wedding_date: customer.weddingDate,
+    expected_delivery_date: customer.expectedDeliveryDate,
     created_by: customer.createdBy,
   };
 }
