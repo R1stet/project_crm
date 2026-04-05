@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import type { Customer, Status } from "@/types/customer"
 import { AFVENTER_STALE_DAYS } from "@/lib/notifications"
+import { getStatusColor } from "@/lib/status-utils"
 
 // Status options for the filter dropdown
 const statusOptions: Status[] = [
@@ -53,20 +54,6 @@ export function CustomerTable({
     return diffDays >= AFVENTER_STALE_DAYS
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "afventer":
-        return "bg-red-500 text-white border-red-500"
-      case "i produktion":
-        return "bg-yellow-400 text-black border-yellow-400"
-      case "kjole ankommet":
-        return "bg-green-500 text-white border-green-500"
-      case "kjole afhentet":
-        return "bg-black text-white border-black"
-      default:
-        return "bg-gray-200 text-gray-800 border-gray-200"
-    }
-  }
 
   const formatDate = (dateString: string) => {
     try {

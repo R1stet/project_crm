@@ -27,6 +27,7 @@ export interface Size {
 
 export interface Customer {
   id: string;
+  trackingId: string;
   name: string;
   email: string;
   phoneNumber: string | null;
@@ -77,6 +78,7 @@ export function dbRowToCustomer(row: any): Customer {
 
   return {
     id: row.id,
+    trackingId: row.tracking_id,
     name: row.name,
     email: row.email,
     phoneNumber: row.phone_number,
@@ -107,7 +109,7 @@ export function dbRowToCustomer(row: any): Customer {
 }
 
 export function customerToDbRow(
-  customer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'dateAdded'>
+  customer: Omit<Customer, 'id' | 'trackingId' | 'createdAt' | 'updatedAt' | 'dateAdded'>
 ) {
   return {
     name: customer.name,

@@ -26,6 +26,7 @@ export type Database = {
       customers: {
         Row: {
           id: string
+          tracking_id: string
           name: string
           email: string
           phone_number: string | null
@@ -53,6 +54,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          tracking_id?: string
           name: string
           email: string
           phone_number?: string | null
@@ -78,6 +80,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          tracking_id?: string
           name?: string
           email?: string
           phone_number?: string | null

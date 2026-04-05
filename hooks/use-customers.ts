@@ -39,7 +39,7 @@ export function useCustomers() {
   }, []);
 
   /* ---------- add ---------- */
-  const addCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'dateAdded'>) => {
+  const addCustomer = async (customerData: Omit<Customer, 'id' | 'trackingId' | 'createdAt' | 'updatedAt' | 'dateAdded'>) => {
     if (!supabase) {
       throw new Error('Database connection not available');
     }
@@ -62,7 +62,7 @@ export function useCustomers() {
   /* ---------- update ---------- */
   const updateCustomer = async (
     id: string,
-    customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'dateAdded' | 'createdBy'>
+    customerData: Omit<Customer, 'id' | 'trackingId' | 'createdAt' | 'updatedAt' | 'dateAdded' | 'createdBy'>
   ) => {
     if (!supabase) {
       throw new Error('Database connection not available');

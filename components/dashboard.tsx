@@ -145,7 +145,7 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   }
 
   const handleSaveCustomer = async (
-    customerData: Omit<Customer, "id" | "createdBy" | "createdAt" | "updatedAt" | "dateAdded">,
+    customerData: Omit<Customer, "id" | "trackingId" | "createdBy" | "createdAt" | "updatedAt" | "dateAdded">,
   ) => {
     try {
       let savedCustomer: Customer | undefined

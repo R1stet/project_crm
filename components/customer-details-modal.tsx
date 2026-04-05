@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Mail, Calendar } from "lucide-react"
+import { Edit, Trash2, Mail, Calendar, Copy, Check } from "lucide-react"
+import { getStatusColor, formatDate } from "@/lib/status-utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,31 +35,9 @@ export function CustomerDetailsModal({
   onEdit,
   onDelete,
 }: CustomerDetailsModalProps) {
+  const [trackingCopied, setTrackingCopied] = React.useState(false)
+
   if (!customer) return null
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "afventer":
-        return "bg-red-500 text-white border-red-500"
-      case "i produktion":
-        return "bg-yellow-400 text-black border-yellow-400"
-      case "kjole ankommet":
-        return "bg-green-500 text-white border-green-500"
-      case "kjole afhentet":
-        return "bg-black text-white border-black"
-      default:
-        return "bg-gray-200 text-gray-800 border-gray-200"
-    }
-  }
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Ikke angivet"
-    try {
-      return new Date(dateString).toLocaleDateString("da-DK")
-    } catch {
-      return dateString
-    }
-  }
 
   const isWithin8WeeksOfWedding = () => {
     if (!customer.weddingDate) return false
@@ -151,6 +130,25 @@ Team Fuhrmanns`)
                   <span>Reminder: Tid til Skrædder</span>
                 </Button>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const link = `${window.location.origin}/track/${customer.trackingId}`
+                  navigator.clipboard.writeText(link)
+                  setTrackingCopied(true)
+                  setTimeout(() => setTrackingCopied(false), 2000)
+                }}
+                className="text-xs sm:text-sm"
+              >
+                {trackingCopied ? (
+                  <Check className="h-4 w-4 mr-1 sm:mr-2 text-green-600" />
+                ) : (
+                  <Copy className="h-4 w-4 mr-1 sm:mr-2" />
+                )}
+                <span className="hidden sm:inline">{trackingCopied ? "Kopieret!" : "Sporingslink"}</span>
+                <span className="sm:hidden">{trackingCopied ? "Kopieret!" : "Link"}</span>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

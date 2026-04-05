@@ -29,7 +29,7 @@ interface CustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (
-    customer: Omit<Customer, 'id' | 'createdBy' | 'createdAt' | 'updatedAt' | 'dateAdded'>
+    customer: Omit<Customer, 'id' | 'trackingId' | 'createdBy' | 'createdAt' | 'updatedAt' | 'dateAdded'>
   ) => Promise<void>;
   customer?: Customer | null;
 }
