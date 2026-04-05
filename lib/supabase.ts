@@ -44,10 +44,12 @@ export type Database = {
           supplier_file_url: string | null
           notes: string | null
           wedding_date: string | null
+          expected_delivery_date: string | null
           date_added: string
           created_by: string
           created_at: string
           updated_at: string
+          accessories: string
         }
         Insert: {
           id?: string
@@ -69,8 +71,10 @@ export type Database = {
           supplier_file_url?: string | null
           notes?: string | null
           wedding_date?: string | null
+          expected_delivery_date?: string | null
           date_added?: string
           created_by: string
+          accessories?: string
         }
         Update: {
           id?: string
@@ -92,9 +96,11 @@ export type Database = {
           supplier_file_url?: string | null
           notes?: string | null
           wedding_date?: string | null
+          expected_delivery_date?: string | null
           date_added?: string
           created_by?: string
           updated_at?: string
+          accessories?: string
         }
       }
     }

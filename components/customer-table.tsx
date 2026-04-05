@@ -3,12 +3,13 @@
 import type React from "react"
 
 import { useState } from "react"
-import { ChevronUp, ChevronDown, Filter, X } from "lucide-react"
+import { ChevronUp, ChevronDown, Filter, X, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import type { Customer, Status } from "@/types/customer"
+import { AFVENTER_STALE_DAYS } from "@/lib/notifications"
 
 // Status options for the filter dropdown
 const statusOptions: Status[] = [
@@ -43,19 +44,27 @@ export function CustomerTable({
     onFilterChange({ ...filters, [field]: value })
   }
 
-  const getStatusBadgeVariant = (status: string) => {
+  const isStaleAfventer = (customer: Customer) => {
+    if (customer.status !== 'Afventer') return false
+    if (!customer.dateAdded) return false
+    const addedDate = new Date(customer.dateAdded)
+    const today = new Date()
+    const diffDays = Math.floor((today.getTime() - addedDate.getTime()) / (1000 * 60 * 60 * 24))
+    return diffDays >= AFVENTER_STALE_DAYS
+  }
+
+  const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case "kjole afhentet":
-        return "default"
-      case "i produktion":
-        return "secondary"
-      case "kjole ankommet":
-        return "secondary"
       case "afventer":
-      case "Afventer":
-        return "outline"
+        return "bg-red-500 text-white border-red-500"
+      case "i produktion":
+        return "bg-yellow-400 text-black border-yellow-400"
+      case "kjole ankommet":
+        return "bg-green-500 text-white border-green-500"
+      case "kjole afhentet":
+        return "bg-black text-white border-black"
       default:
-        return "outline"
+        return "bg-gray-200 text-gray-800 border-gray-200"
     }
   }
 
@@ -316,9 +325,16 @@ export function CustomerTable({
                 <TableCell className="hidden lg:table-cell py-4">{customer.phoneNumber}</TableCell>
                 <TableCell className="hidden lg:table-cell py-4">{customer.salesperson}</TableCell>
                 <TableCell className="py-4">
-                  <Badge variant={getStatusBadgeVariant(customer.status)} className="text-xs">
-                    {customer.status}
-                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <Badge className={`text-xs ${getStatusColor(customer.status)}`}>
+                      {customer.status}
+                    </Badge>
+                    {isStaleAfventer(customer) && (
+                      <span title={`Denne kunde har ventet i over ${AFVENTER_STALE_DAYS} dage`}>
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-blue-600 sm:hidden mt-1">{customer.weddingDate}</div>
                 </TableCell>
                 <TableCell className="hidden xl:table-cell py-4">{customer.dress}</TableCell>

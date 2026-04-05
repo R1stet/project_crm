@@ -5,8 +5,10 @@ import { Header } from "@/components/header"
 import { CustomerTable } from "@/components/customer-table"
 import { CustomerModal } from "@/components/customer-modal"
 import { CustomerDetailsModal } from "@/components/customer-details-modal"
+import { StatusNotificationDialog } from "@/components/status-notification-dialog"
 import { useCustomers } from "@/hooks/use-customers"
-import type { Customer } from "@/types/customer"
+import type { Customer, Status } from "@/types/customer"
+import { NOTIFIABLE_STATUSES, sendNotification, type EmailPayload } from "@/lib/notifications"
 import { Loader2 } from "lucide-react"
 
 interface DashboardProps {
@@ -35,6 +37,10 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
   const [sortField, setSortField] = useState<keyof Customer>("createdAt")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [filters, setFilters] = useState<Record<string, string>>({})
+  const [showNotificationDialog, setShowNotificationDialog] = useState(false)
+  const [pendingEmailPreview, setPendingEmailPreview] = useState<EmailPayload | null>(null)
+  const [pendingNotificationStatus, setPendingNotificationStatus] = useState<Status>("Afventer")
+  const [pendingNotificationCustomerName, setPendingNotificationCustomerName] = useState("")
 
   // Handle search with debouncing
   useEffect(() => {
@@ -142,8 +148,9 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
     customerData: Omit<Customer, "id" | "createdBy" | "createdAt" | "updatedAt" | "dateAdded">,
   ) => {
     try {
+      let savedCustomer: Customer | undefined
       if (editingCustomer) {
-        await updateCustomer(editingCustomer.id, customerData)
+        savedCustomer = await updateCustomer(editingCustomer.id, customerData)
       } else {
         await addCustomer({
           ...customerData,
@@ -151,18 +158,46 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         })
       }
       setIsModalOpen(false)
+
+      // Check if status changed to a notifiable status
+      if (
+        editingCustomer &&
+        savedCustomer &&
+        editingCustomer.status !== customerData.status &&
+        customerData.status in NOTIFIABLE_STATUSES
+      ) {
+        const buildEmail = NOTIFIABLE_STATUSES[customerData.status as Status]
+        if (buildEmail && savedCustomer.email) {
+          const emailPreview = buildEmail(savedCustomer)
+          setPendingEmailPreview(emailPreview)
+          setPendingNotificationStatus(customerData.status)
+          setPendingNotificationCustomerName(savedCustomer.name)
+          setShowNotificationDialog(true)
+        }
+      }
     } catch (err) {
-      // Log full error details server-side for debugging
       console.error("Failed to save customer:", err)
       console.error("Error details:", {
         message: err instanceof Error ? err.message : String(err),
         stack: err instanceof Error ? err.stack : undefined,
         customerData: customerData,
       })
-      // Show user-friendly error message without exposing stack traces
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       alert(`Failed to save customer: ${errorMessage}`)
     }
+  }
+
+  const handleConfirmNotification = () => {
+    if (pendingEmailPreview) {
+      sendNotification(pendingEmailPreview)
+    }
+    setShowNotificationDialog(false)
+    setPendingEmailPreview(null)
+  }
+
+  const handleSkipNotification = () => {
+    setShowNotificationDialog(false)
+    setPendingEmailPreview(null)
   }
 
   const handleDeleteCustomer = async (id: string) => {
@@ -250,6 +285,18 @@ export function Dashboard({ currentUser, onLogout }: DashboardProps) {
         onEdit={handleEditCustomer}
         onDelete={handleDeleteCustomer}
       />
+
+      {pendingEmailPreview && (
+        <StatusNotificationDialog
+          isOpen={showNotificationDialog}
+          onConfirm={handleConfirmNotification}
+          onSkip={handleSkipNotification}
+          onCancel={handleSkipNotification}
+          customerName={pendingNotificationCustomerName}
+          newStatus={pendingNotificationStatus}
+          emailPreview={pendingEmailPreview}
+        />
+      )}
     </div>
   )
 }
