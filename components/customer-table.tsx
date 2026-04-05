@@ -93,9 +93,9 @@ export function CustomerTable({
         <h2 className="text-lg font-semibold">Kunder ({customers.length})</h2>
         <div className="flex gap-2">
           {Object.values(filters).some(value => value) && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onFilterChange({})}
               className="text-red-600 hover:text-red-700"
             >
@@ -110,15 +110,31 @@ export function CustomerTable({
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filter Side Panel - slides from right */}
       {showFilters && (
-        <div className="p-4 bg-gray-50 border-b">
+        <div className="fixed inset-0 z-40" onClick={() => setShowFilters(false)}>
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+      )}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto ${
+          showFilters ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-5">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold">Filtre</h3>
+            <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
           {Object.values(filters).some(value => value) && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
               <p className="text-sm text-blue-800 font-medium mb-2">Aktive filtre:</p>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(filters).filter(([, value]) => value).map(([field, value]) => {
-                  const displayValue = field === "weddingMonth" ? 
+                  const displayValue = field === "weddingMonth" ?
                     ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"][parseInt(value) - 1] :
                     value
                   const fieldName = field === "weddingMonth" ? "Bryllupsmåned" :
@@ -143,7 +159,8 @@ export function CustomerTable({
               </div>
             </div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+
+          <div className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Bryllupsmåned</label>
               <select
@@ -233,7 +250,7 @@ export function CustomerTable({
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
