@@ -36,19 +36,18 @@ export function CustomerDetailsModal({
 }: CustomerDetailsModalProps) {
   if (!customer) return null
 
-  const getStatusBadgeVariant = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case "kjole afhentet":
-        return "default"
-      case "i produktion":
-        return "secondary"
-      case "kjole ankommet":
-        return "secondary"
       case "afventer":
-      case "Afventer":
-        return "outline"
+        return "bg-red-500 text-white border-red-500"
+      case "i produktion":
+        return "bg-yellow-400 text-black border-yellow-400"
+      case "kjole ankommet":
+        return "bg-green-500 text-white border-green-500"
+      case "kjole afhentet":
+        return "bg-black text-white border-black"
       default:
-        return "outline"
+        return "bg-gray-200 text-gray-800 border-gray-200"
     }
   }
 
@@ -212,10 +211,14 @@ Team Fuhrmanns`)
               <div>
                 <label className="text-sm font-medium text-gray-600">Status</label>
                 <div className="mt-1">
-                  <Badge variant={getStatusBadgeVariant(customer.status)}>
+                  <Badge className={getStatusColor(customer.status)}>
                     {customer.status}
                   </Badge>
                 </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Forventet leveringsdato</label>
+                <p className="text-sm">{formatDate(customer.expectedDeliveryDate)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Brudekjoler</label>

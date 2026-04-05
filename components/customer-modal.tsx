@@ -66,6 +66,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
     supplierFileUrl: '',
     notes: '',
     weddingDate: '',
+    expectedDeliveryDate: '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -109,6 +110,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         supplierFileUrl: customer.supplierFileUrl ?? '',
         notes: customer.notes ?? '',
         weddingDate: customer.weddingDate ?? '',
+        expectedDeliveryDate: customer.expectedDeliveryDate ?? '',
       });
     } else {
       /* reset to blank */
@@ -134,6 +136,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         supplierFileUrl: '',
         notes: '',
         weddingDate: '',
+        expectedDeliveryDate: '',
       });
     }
   }, [customer, isOpen]);
@@ -321,6 +324,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
         supplierFileUrl: formData.supplierFileUrl || null,
         notes: formData.notes || null,
         weddingDate: formData.weddingDate || null,
+        expectedDeliveryDate: formData.expectedDeliveryDate || null,
       });
     } catch (error) {
       console.error('Error saving customer:', error);
@@ -405,6 +409,17 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* expected delivery date */}
+          <div className="space-y-2">
+            <Label htmlFor="expectedDeliveryDate">Forventet leveringsdato</Label>
+            <Input
+              id="expectedDeliveryDate"
+              type="date"
+              value={formData.expectedDeliveryDate}
+              onChange={(e) => handleChange('expectedDeliveryDate', e.target.value)}
+            />
           </div>
 
           {/* dress + maker + skrædder */}
