@@ -38,6 +38,19 @@ export const objectPathSchema = z.string().regex(
   'Invalid file path format'
 )
 
+export const trackingLookupSchema = z.object({
+  email: z.string().email('Ugyldig email-adresse'),
+  phoneNumber: z.string().min(1, 'Telefonnummer er påkrævet'),
+})
+
+export const verifyOtpSchema = z.object({
+  email: z.string().email('Ugyldig email-adresse'),
+  phoneNumber: z.string().min(1, 'Telefonnummer er påkrævet'),
+  code: z.string().length(6, 'Koden skal være 6 cifre').regex(/^\d{6}$/, 'Koden skal kun indeholde tal'),
+})
+
 export type LoginInput = z.infer<typeof loginSchema>
 export type CustomerInput = z.infer<typeof customerSchema>
 export type SearchInput = z.infer<typeof searchSchema>
+export type TrackingLookupInput = z.infer<typeof trackingLookupSchema>
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>
