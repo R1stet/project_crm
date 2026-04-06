@@ -85,12 +85,7 @@ export async function uploadInvoice(file: File, customerId?: string): Promise<st
 
     if (error) throw error
 
-    // Get the public URL
-    const { data: urlData } = supabase!.storage
-      .from('invoices')
-      .getPublicUrl(data.path)
-
-    return urlData.publicUrl
+    return data.path
   } catch (error) {
     console.error('Error uploading file:', error)
     throw new Error(error instanceof Error ? error.message : 'Failed to upload file')
@@ -142,16 +137,44 @@ export async function uploadSupplierFile(file: File, customerId?: string): Promi
 
     if (error) throw error
 
-    // Get the public URL
-    const { data: urlData } = supabase!.storage
-      .from('supplier')
-      .getPublicUrl(data.path)
-
-    return urlData.publicUrl
+    return data.path
   } catch (error) {
     console.error('Error uploading supplier file:', error)
     throw new Error(error instanceof Error ? error.message : 'Failed to upload supplier file')
   }
+}
+
+const OBJECT_PATH_PATTERN = /^[a-zA-Z0-9_-]+\.(pdf|jpg|jpeg|png|webp)$/
+
+export function isInternalObjectPath(value: string): boolean {
+  return OBJECT_PATH_PATTERN.test(value)
+}
+
+export async function getSignedUrl(bucket: string, path: string): Promise<string> {
+  if (!supabase) {
+    throw new Error('Database connection not available')
+  }
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) {
+    throw new Error('Not authenticated')
+  }
+
+  const response = await fetch('/api/storage/signed-url', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ bucket, path }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to get signed URL')
+  }
+
+  const data = await response.json()
+  return data.url
 }
 
 export async function deleteSupplierPDF(fileName: string): Promise<void> {

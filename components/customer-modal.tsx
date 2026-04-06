@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { Customer, DressType, Status, InvoiceStatus, AccessoryType, Accessory } from '@/types/customer';
-import { uploadInvoice, uploadSupplierFile, captureImageFromCamera } from '@/lib/storage';
+import { uploadInvoice, uploadSupplierFile, captureImageFromCamera, getSignedUrl, isInternalObjectPath } from '@/lib/storage';
+import { getStatusColor } from '@/lib/status-utils';
 import { Upload, Loader2, Camera, X } from 'lucide-react';
 
 interface CustomerModalProps {
@@ -78,12 +79,35 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supplierFileInputRef = useRef<HTMLInputElement>(null);
+  const [invoicePreviewUrl, setInvoicePreviewUrl] = useState<string | null>(null);
+  const [supplierPreviewUrl, setSupplierPreviewUrl] = useState<string | null>(null);
 
-  // Utility function to check if URL is an image
-  const isImageUrl = (url: string) => {
+  // Utility function to check if path/URL is an image
+  const isImagePath = (value: string) => {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']
-    return imageExtensions.some(ext => url.toLowerCase().includes(ext))
+    return imageExtensions.some(ext => value.toLowerCase().endsWith(ext))
   }
+
+  // Fetch signed URLs for image previews
+  useEffect(() => {
+    if (formData.invoiceFileUrl && isInternalObjectPath(formData.invoiceFileUrl) && isImagePath(formData.invoiceFileUrl)) {
+      getSignedUrl('invoices', formData.invoiceFileUrl)
+        .then(setInvoicePreviewUrl)
+        .catch(() => setInvoicePreviewUrl(null))
+    } else {
+      setInvoicePreviewUrl(null)
+    }
+  }, [formData.invoiceFileUrl])
+
+  useEffect(() => {
+    if (formData.supplierFileUrl && isInternalObjectPath(formData.supplierFileUrl) && isImagePath(formData.supplierFileUrl)) {
+      getSignedUrl('supplier', formData.supplierFileUrl)
+        .then(setSupplierPreviewUrl)
+        .catch(() => setSupplierPreviewUrl(null))
+    } else {
+      setSupplierPreviewUrl(null)
+    }
+  }, [formData.supplierFileUrl])
 
   /* ---------- sync incoming customer ---------- */
   useEffect(() => {
@@ -398,12 +422,20 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(v) => handleChange('status', v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Vælg status" />
+                  <SelectValue>
+                    <span className="flex items-center gap-2">
+                      <span className={`inline-block w-3 h-3 rounded-full ${getStatusColor(formData.status).split(' ').filter(c => c.startsWith('bg-')).join(' ')}`} />
+                      {formData.status}
+                    </span>
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((opt) => (
                     <SelectItem key={opt} value={opt}>
-                      {opt}
+                      <span className="flex items-center gap-2">
+                        <span className={`inline-block w-3 h-3 rounded-full ${getStatusColor(opt).split(' ').filter(c => c.startsWith('bg-')).join(' ')}`} />
+                        {opt}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -549,13 +581,9 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
             <div className="space-y-2">
               <Label htmlFor="invoiceFileUrl">Faktura Fil</Label>
               <div className="flex gap-2">
-                <Input
-                  id="invoiceFileUrl"
-                  placeholder="Upload PDF eller billede"
-                  value={formData.invoiceFileUrl}
-                  onChange={(e) => handleChange('invoiceFileUrl', e.target.value)}
-                  disabled={uploading}
-                />
+                <div className="flex-1 flex items-center min-h-[36px] px-3 py-1 border rounded-md bg-gray-50 text-sm text-gray-600 truncate">
+                  {formData.invoiceFileUrl || 'Ingen fil valgt'}
+                </div>
                 <div className="flex gap-1">
                   <input
                     ref={fileInputRef}
@@ -602,12 +630,12 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               {uploading && (
                 <p className="text-xs text-blue-600">Uploader fil...</p>
               )}
-              {formData.invoiceFileUrl && isImageUrl(formData.invoiceFileUrl) && (
+              {formData.invoiceFileUrl && invoicePreviewUrl && (
                 <div className="mt-2">
                   <div className="relative inline-block">
-                    <img 
-                      src={formData.invoiceFileUrl} 
-                      alt="Faktura preview" 
+                    <img
+                      src={invoicePreviewUrl}
+                      alt="Faktura preview"
                       className="w-32 h-32 object-cover rounded border"
                     />
                     <Button
@@ -627,13 +655,9 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
             <div className="space-y-2">
               <Label htmlFor="supplierFileUrl">Leverandør Fil</Label>
               <div className="flex gap-2">
-                <Input
-                  id="supplierFileUrl"
-                  placeholder="Upload PDF eller billede"
-                  value={formData.supplierFileUrl}
-                  onChange={(e) => handleChange('supplierFileUrl', e.target.value)}
-                  disabled={uploadingSupplier}
-                />
+                <div className="flex-1 flex items-center min-h-[36px] px-3 py-1 border rounded-md bg-gray-50 text-sm text-gray-600 truncate">
+                  {formData.supplierFileUrl || 'Ingen fil valgt'}
+                </div>
                 <div className="flex gap-1">
                   <input
                     ref={supplierFileInputRef}
@@ -680,12 +704,12 @@ export function CustomerModal({ isOpen, onClose, onSave, customer }: CustomerMod
               {uploadingSupplier && (
                 <p className="text-xs text-blue-600">Uploader fil...</p>
               )}
-              {formData.supplierFileUrl && isImageUrl(formData.supplierFileUrl) && (
+              {formData.supplierFileUrl && supplierPreviewUrl && (
                 <div className="mt-2">
                   <div className="relative inline-block">
-                    <img 
-                      src={formData.supplierFileUrl} 
-                      alt="Leverandør preview" 
+                    <img
+                      src={supplierPreviewUrl}
+                      alt="Leverandør preview"
                       className="w-32 h-32 object-cover rounded border"
                     />
                     <Button

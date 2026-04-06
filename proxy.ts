@@ -1,7 +1,68 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+// Rate limit state
+const trackingLimiter = new Map<string, { count: number; timestamp: number }>()
+const TRACKING_LIMIT = 30
+const TRACKING_WINDOW = 60_000 // 1 minute
+
+const loginLimiter = new Map<string, { count: number; timestamp: number }>()
+const LOGIN_LIMIT = 10
+const LOGIN_WINDOW = 15 * 60 * 1000 // 15 minutes
+
+function checkRateLimit(
+  limiter: Map<string, { count: number; timestamp: number }>,
+  key: string,
+  limit: number,
+  window: number,
+): boolean {
+  const now = Date.now()
+  const record = limiter.get(key)
+
+  if (!record || now - record.timestamp > window) {
+    limiter.set(key, { count: 1, timestamp: now })
+    return true
+  }
+
+  if (record.count >= limit) {
+    return false
+  }
+
+  record.count++
+  return true
+}
+
+function cleanupLimiter(limiter: Map<string, { count: number; timestamp: number }>, window: number) {
+  if (limiter.size > 10000) {
+    const now = Date.now()
+    for (const [key, val] of limiter) {
+      if (now - val.timestamp > window) limiter.delete(key)
+    }
+  }
+}
+
 export function proxy(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+  // Rate limit tracking route
+  if (request.nextUrl.pathname.startsWith('/track/')) {
+    cleanupLimiter(trackingLimiter, TRACKING_WINDOW)
+    if (!checkRateLimit(trackingLimiter, ip, TRACKING_LIMIT, TRACKING_WINDOW)) {
+      return new NextResponse('Too Many Requests', { status: 429 })
+    }
+  }
+
+  // Rate limit login API
+  if (request.nextUrl.pathname === '/api/auth/login' && request.method === 'POST') {
+    cleanupLimiter(loginLimiter, LOGIN_WINDOW)
+    if (!checkRateLimit(loginLimiter, ip, LOGIN_LIMIT, LOGIN_WINDOW)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 },
+      )
+    }
+  }
+
   const response = NextResponse.next()
 
   // Security headers
@@ -55,11 +116,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }

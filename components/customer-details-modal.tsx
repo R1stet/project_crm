@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { Customer } from "@/types/customer"
+import { getSignedUrl, isInternalObjectPath } from "@/lib/storage"
 
 interface CustomerDetailsModalProps {
   isOpen: boolean
@@ -36,6 +37,37 @@ export function CustomerDetailsModal({
   onDelete,
 }: CustomerDetailsModalProps) {
   const [trackingCopied, setTrackingCopied] = React.useState(false)
+  const [invoicePreviewUrl, setInvoicePreviewUrl] = React.useState<string | null>(null)
+  const [supplierPreviewUrl, setSupplierPreviewUrl] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (customer?.invoiceFileUrl && isInternalObjectPath(customer.invoiceFileUrl)) {
+      getSignedUrl('invoices', customer.invoiceFileUrl)
+        .then(setInvoicePreviewUrl)
+        .catch(() => setInvoicePreviewUrl(null))
+    } else {
+      setInvoicePreviewUrl(null)
+    }
+  }, [customer?.invoiceFileUrl])
+
+  React.useEffect(() => {
+    if (customer?.supplierFileUrl && isInternalObjectPath(customer.supplierFileUrl)) {
+      getSignedUrl('supplier', customer.supplierFileUrl)
+        .then(setSupplierPreviewUrl)
+        .catch(() => setSupplierPreviewUrl(null))
+    } else {
+      setSupplierPreviewUrl(null)
+    }
+  }, [customer?.supplierFileUrl])
+
+  const handleOpenDocument = async (bucket: string, path: string) => {
+    try {
+      const url = await getSignedUrl(bucket, path)
+      window.open(url, "_blank", "noopener,noreferrer")
+    } catch {
+      alert('Kunne ikke åbne dokument. Prøv igen.')
+    }
+  }
 
   if (!customer) return null
 
@@ -300,20 +332,20 @@ Team Fuhrmanns`)
               <label className="text-sm font-medium text-gray-600 block mb-2">Dokumenter</label>
               <div className="space-y-3">
                 <div className="flex space-x-2">
-                  {customer.invoiceFileUrl && (
+                  {customer.invoiceFileUrl && isInternalObjectPath(customer.invoiceFileUrl) && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(customer.invoiceFileUrl!, "_blank")}
+                      onClick={() => handleOpenDocument('invoices', customer.invoiceFileUrl!)}
                     >
                       📄 Vis Faktura
                     </Button>
                   )}
-                  {customer.supplierFileUrl && (
+                  {customer.supplierFileUrl && isInternalObjectPath(customer.supplierFileUrl) && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(customer.supplierFileUrl!, "_blank")}
+                      onClick={() => handleOpenDocument('supplier', customer.supplierFileUrl!)}
                     >
                       📦 Vis Leverandør
                     </Button>
@@ -325,25 +357,25 @@ Team Fuhrmanns`)
                 
                 {/* Image Previews */}
                 <div className="grid grid-cols-2 gap-2">
-                  {customer.invoiceFileUrl && customer.invoiceFileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i) && (
+                  {invoicePreviewUrl && (
                     <div className="space-y-1">
                       <p className="text-xs text-gray-600">Faktura</p>
-                      <img 
-                        src={customer.invoiceFileUrl} 
-                        alt="Faktura preview" 
+                      <img
+                        src={invoicePreviewUrl}
+                        alt="Faktura preview"
                         className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80"
-                        onClick={() => window.open(customer.invoiceFileUrl!, "_blank")}
+                        onClick={() => handleOpenDocument('invoices', customer.invoiceFileUrl!)}
                       />
                     </div>
                   )}
-                  {customer.supplierFileUrl && customer.supplierFileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i) && (
+                  {supplierPreviewUrl && (
                     <div className="space-y-1">
                       <p className="text-xs text-gray-600">Leverandør</p>
-                      <img 
-                        src={customer.supplierFileUrl} 
-                        alt="Leverandør preview" 
+                      <img
+                        src={supplierPreviewUrl}
+                        alt="Leverandør preview"
                         className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80"
-                        onClick={() => window.open(customer.supplierFileUrl!, "_blank")}
+                        onClick={() => handleOpenDocument('supplier', customer.supplierFileUrl!)}
                       />
                     </div>
                   )}

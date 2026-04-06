@@ -83,30 +83,46 @@ export default function Home() {
     setLoginLoading(true)
     setError(null)
 
+    // Client-side rate limiter as UX feedback only
     const rateLimitCheck = loginRateLimiter.check(email)
     if (!rateLimitCheck.allowed) {
       const resetTime = new Date(rateLimitCheck.resetTime)
       setError(`Too many login attempts. Try again after ${resetTime.toLocaleTimeString()}`)
       setLoginLoading(false)
-      logSecurityEvent('RATE_LIMIT_EXCEEDED', { email, ip: 'client' })
       return
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       })
-      
-      if (error) {
-        throw error
+
+      const result = await response.json()
+
+      if (response.status === 429) {
+        const resetTime = result.resetTime ? new Date(result.resetTime) : null
+        setError(resetTime
+          ? `Too many login attempts. Try again after ${resetTime.toLocaleTimeString()}`
+          : 'Too many login attempts. Please try again later.')
+        logSecurityEvent('RATE_LIMIT_EXCEEDED', { email, ip: 'server' })
+        return
       }
-      
-      if (data.user) {
-        setCurrentUser(data.user.email || data.user.id)
-        setIsAuthenticated(true)
-        loginRateLimiter.reset(email)
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Login failed')
       }
+
+      // Set the session on the client-side Supabase instance
+      await supabase.auth.setSession({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      })
+
+      setCurrentUser(result.user.email || result.user.id)
+      setIsAuthenticated(true)
+      loginRateLimiter.reset(email)
     } catch (error) {
       const userMessage = sanitizeError(error)
       setError(userMessage)

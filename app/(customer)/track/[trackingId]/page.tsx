@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createAnonServerSupabaseClient } from "@/lib/supabase-server"
 import { OrderStatusCard } from "@/components/tracking/order-status-card"
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function TrackingPage({
     return <NotFound />
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = createAnonServerSupabaseClient()
 
   const { data, error } = await supabase
     .from("customers")

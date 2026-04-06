@@ -33,6 +33,11 @@ export function sanitizeSearchQuery(query: string): string {
   return query.replace(/[%_\\]/g, '\\$&').trim()
 }
 
+export const objectPathSchema = z.string().regex(
+  /^[a-zA-Z0-9_-]+\.(pdf|jpg|jpeg|png|webp)$/,
+  'Invalid file path format'
+)
+
 export type LoginInput = z.infer<typeof loginSchema>
 export type CustomerInput = z.infer<typeof customerSchema>
 export type SearchInput = z.infer<typeof searchSchema>

@@ -8,12 +8,20 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       // Only add pattern if Supabase URL is configured
-      ...(supabaseHostname ? [{
-        protocol: 'https' as const,
-        hostname: supabaseHostname,
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      }] : []),
+      ...(supabaseHostname ? [
+        {
+          protocol: 'https' as const,
+          hostname: supabaseHostname,
+          port: '',
+          pathname: '/storage/v1/object/public/**',
+        },
+        {
+          protocol: 'https' as const,
+          hostname: supabaseHostname,
+          port: '',
+          pathname: '/storage/v1/object/sign/**',
+        },
+      ] : []),
     ],
   },
 };
