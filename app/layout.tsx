@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// Force dynamic rendering so the per-request CSP nonce set in proxy.ts is
+// applied to Next.js's inline streaming scripts. Static prerender would
+// bake the HTML at build time without nonces, and the runtime CSP would
+// block hydration.
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
