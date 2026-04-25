@@ -26,12 +26,17 @@ export default function Home() {
 
     // Check if user is already logged in
     const checkAuth = async () => {
-      const { data: { user } } = await supabase!.auth.getUser()
-      if (user) {
-        setIsAuthenticated(true)
-        setCurrentUser(user.email || user.id)
+      try {
+        const { data: { user } } = await supabase!.auth.getUser()
+        if (user) {
+          setIsAuthenticated(true)
+          setCurrentUser(user.email || user.id)
+        }
+      } catch (err) {
+        console.error("Supabase getUser failed:", err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     
     checkAuth()
