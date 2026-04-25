@@ -63,24 +63,19 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  const response = NextResponse.next()
-
-  // Security headers
-  response.headers.set('X-DNS-Prefetch-Control', 'off')
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-
-  // Content Security Policy - Strengthened for security
   const isDev = process.env.NODE_ENV === 'development'
+
+  // Per-request nonce for CSP. In production we use 'nonce-…' + 'strict-dynamic'
+  // so Next.js's streaming inline scripts (self.__next_f.push(...)) can execute
+  // without 'unsafe-inline'. Next.js auto-applies this nonce to its scripts when
+  // it sees the CSP header on the incoming request.
+  const nonce = btoa(crypto.randomUUID())
 
   const csp = [
     "default-src 'self'",
-    // Allow unsafe-eval only in dev for Next.js HMR, remove unsafe-inline in production
     isDev
       ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' 'wasm-unsafe-eval'"
-      : "script-src 'self' 'wasm-unsafe-eval'",
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.vercel.app",
     "font-src 'self' https://fonts.gstatic.com https://*.vercel.app data:",
     "img-src 'self' data: https: blob: https://*.vercel.app https://*.supabase.co",
@@ -96,12 +91,31 @@ export function proxy(request: NextRequest) {
     "frame-ancestors 'none'"
   ]
 
-  // Only add upgrade-insecure-requests in production
   if (!isDev) {
     csp.push("upgrade-insecure-requests")
   }
 
-  response.headers.set('Content-Security-Policy', csp.join('; '))
+  const cspValue = csp.join('; ')
+
+  // Forward the nonce + CSP to Next.js via request headers so it applies the
+  // nonce to its inline scripts. This also opts the route into dynamic
+  // rendering, which is required because the nonce changes per request.
+  const requestHeaders = new Headers(request.headers)
+  if (!isDev) {
+    requestHeaders.set('x-nonce', nonce)
+    requestHeaders.set('content-security-policy', cspValue)
+  }
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  })
+
+  response.headers.set('X-DNS-Prefetch-Control', 'off')
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('Content-Security-Policy', cspValue)
 
   // Permissions Policy - Allow camera for same-origin (needed for camera capture feature)
   response.headers.set(
